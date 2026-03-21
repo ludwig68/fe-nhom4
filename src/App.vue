@@ -1,211 +1,538 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-10 px-4 font-sans text-gray-800">
-    <div class="max-w-7xl mx-auto flex flex-col xl:flex-row gap-8">
-      
-      <div class="w-full xl:w-1/3">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-10">
-          <h2 class="text-2xl font-bold text-indigo-700 mb-6 border-b pb-3">
-            {{ isEditing ? 'Sửa thông tin' : 'Thêm người dùng' }}
-          </h2>
-          
-          <form @submit.prevent="saveUser" class="space-y-4">
-            <div>
-              <label class="block text-sm font-semibold mb-1">Họ và Tên (*)</label>
-              <input v-model="form.name" type="text" required 
-                class="w-full rounded-lg border-gray-300 border px-4 py-2.5 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition" 
-                placeholder="Nhập họ tên...">
-            </div>
-            
-            <div>
-              <label class="block text-sm font-semibold mb-1">Email</label>
-              <input v-model="form.email" type="email" 
-                class="w-full rounded-lg border-gray-300 border px-4 py-2.5 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition" 
-                placeholder="email@example.com">
-            </div>
+  <div class="min-h-screen bg-stone-50 text-stone-800">
+    <header class="sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-sm font-bold text-white">
+            HL
+          </div>
+          <div>
+            <p class="text-lg font-semibold tracking-wide text-stone-900">Hotel Luxe</p>
+            <p class="text-xs text-stone-500">Đặt phòng dễ dàng, nghỉ dưỡng trọn vẹn</p>
+          </div>
+        </div>
 
-            <div>
-              <label class="block text-sm font-semibold mb-1">Số điện thoại</label>
-              <input v-model="form.phone" type="text" 
-                class="w-full rounded-lg border-gray-300 border px-4 py-2.5 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition" 
-                placeholder="0901234567">
-            </div>
-            
-            <div class="flex gap-3 pt-4">
-              <button type="submit" class="flex-1 bg-indigo-600 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-indigo-700 shadow transition">
-                {{ isEditing ? 'Cập nhật' : 'Tạo mới' }}
-              </button>
-              <button v-if="isEditing" @click="resetForm" type="button" class="bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-lg hover:bg-gray-300 transition">
-                Hủy
-              </button>
-            </div>
-          </form>
+        <nav class="hidden items-center gap-7 text-sm text-stone-600 lg:flex">
+          <a href="#gioi-thieu" class="transition hover:text-stone-900">Giới thiệu</a>
+          <a href="#chi-nhanh" class="transition hover:text-stone-900">Chi nhánh</a>
+          <a href="#phong" class="transition hover:text-stone-900">Phòng</a>
+          <a href="#dat-phong" class="transition hover:text-stone-900">Đặt phòng</a>
+          <a href="#danh-gia" class="transition hover:text-stone-900">Đánh giá</a>
+        </nav>
+
+        <div class="hidden items-center gap-3 lg:flex">
+          <button class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
+            Đăng nhập
+          </button>
+          <button class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90">
+            Đăng ký
+          </button>
         </div>
       </div>
+    </header>
 
-      <div class="w-full xl:w-2/3">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          
-          <div class="bg-indigo-600 px-6 py-4 flex justify-between items-center">
-            <h2 class="text-lg font-bold text-white uppercase tracking-wider">Danh sách Người dùng</h2>
-            <span class="bg-white text-indigo-700 font-bold text-sm px-3 py-1 rounded-full">
-              Tổng: {{ users.length }}
+    <section id="gioi-thieu" class="mx-auto max-w-7xl px-6 py-14 lg:px-8 lg:py-20">
+      <div class="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+        <div>
+          <div class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-stone-600 shadow-sm ring-1 ring-stone-200">
+            <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+            Không gian đặt phòng nhẹ nhàng, rõ ràng và dễ sử dụng
+          </div>
+
+          <h1 class="mt-6 max-w-4xl text-4xl font-bold leading-tight tracking-tight text-stone-900 sm:text-5xl xl:text-6xl">
+            Chọn nơi nghỉ phù hợp,
+            <span class="text-stone-500">đặt phòng nhanh và theo dõi booking thuận tiện</span>
+          </h1>
+
+          <p class="mt-6 max-w-2xl text-base leading-8 text-stone-600 sm:text-lg">
+            Giao diện tập trung vào trải nghiệm người dùng, giúp khách dễ xem chi nhánh, tìm phòng trống,
+            chọn dịch vụ đi kèm, xác nhận đặt phòng và quản lý lịch sử booking trên cùng một hệ thống.
+          </p>
+
+          <div class="mt-8 flex flex-col gap-4 sm:flex-row">
+            <button class="rounded-2xl bg-stone-900 px-6 py-4 text-sm font-semibold text-white transition hover:opacity-90">
+              Tìm phòng ngay
+            </button>
+            <button class="rounded-2xl border border-stone-300 bg-white px-6 py-4 text-sm font-semibold text-stone-800 transition hover:bg-stone-100">
+              Xem chi nhánh
+            </button>
+          </div>
+
+          <div class="mt-10 grid gap-4 sm:grid-cols-3">
+            <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+              <p class="text-2xl font-semibold text-stone-900">12+</p>
+              <p class="mt-2 text-sm leading-6 text-stone-500">Chi nhánh tiện nghi tại nhiều khu vực</p>
+            </div>
+            <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+              <p class="text-2xl font-semibold text-stone-900">100+</p>
+              <p class="mt-2 text-sm leading-6 text-stone-500">Phòng với nhiều mức giá và sức chứa</p>
+            </div>
+            <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+              <p class="text-2xl font-semibold text-stone-900">24/7</p>
+              <p class="mt-2 text-sm leading-6 text-stone-500">Theo dõi booking và hỗ trợ khách hàng</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-[32px] bg-white p-5 shadow-xl shadow-stone-200/60 ring-1 ring-stone-200">
+          <div class="rounded-[28px] bg-stone-50 p-5 ring-1 ring-stone-200">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm text-stone-500">Tìm kiếm phòng</p>
+                <h3 class="text-2xl font-semibold text-stone-900">Chỉ vài bước là có thể đặt ngay</h3>
+              </div>
+              <span class="rounded-full bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+                Còn phòng
+              </span>
+            </div>
+
+            <div class="mt-6 grid gap-4 md:grid-cols-2">
+              <div>
+                <label class="mb-2 block text-sm text-stone-500">Ngày nhận phòng</label>
+                <input type="date" class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm text-stone-500">Ngày trả phòng</label>
+                <input type="date" class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm text-stone-500">Chi nhánh</label>
+                <select class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500">
+                  <option>Chọn chi nhánh</option>
+                  <option>TP. Hồ Chí Minh</option>
+                  <option>Đà Nẵng</option>
+                  <option>Hà Nội</option>
+                </select>
+              </div>
+              <div>
+                <label class="mb-2 block text-sm text-stone-500">Sức chứa</label>
+                <select class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500">
+                  <option>Chọn số người</option>
+                  <option>2 người</option>
+                  <option>4 người</option>
+                  <option>6 người</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mt-6 grid gap-3 sm:grid-cols-3">
+              <div class="rounded-2xl bg-white p-4 ring-1 ring-stone-200">
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-400">Giá từ</p>
+                <p class="mt-2 text-lg font-semibold text-stone-900">850.000đ</p>
+              </div>
+              <div class="rounded-2xl bg-white p-4 ring-1 ring-stone-200">
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-400">Dịch vụ</p>
+                <p class="mt-2 text-lg font-semibold text-stone-900">Ăn sáng, massage</p>
+              </div>
+              <div class="rounded-2xl bg-white p-4 ring-1 ring-stone-200">
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-400">Hỗ trợ</p>
+                <p class="mt-2 text-lg font-semibold text-stone-900">Xác nhận nhanh</p>
+              </div>
+            </div>
+
+            <button class="mt-6 w-full rounded-2xl bg-stone-900 px-5 py-4 text-sm font-semibold text-white transition hover:opacity-90">
+              Xem phòng phù hợp
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div v-for="group in featureGroups" :key="group.title" class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+          <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-100 text-xl">{{ group.icon }}</div>
+          <h3 class="mt-5 text-xl font-semibold text-stone-900">{{ group.title }}</h3>
+          <p class="mt-3 text-sm leading-7 text-stone-500">{{ group.description }}</p>
+          <ul class="mt-5 space-y-3 text-sm text-stone-700">
+            <li v-for="item in group.items" :key="item" class="flex items-start gap-3 leading-6">
+              <span class="mt-2 h-2 w-2 rounded-full bg-amber-500"></span>
+              <span>{{ item }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="chi-nhanh" class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+      <div class="mb-8 max-w-2xl">
+        <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Chi nhánh</p>
+        <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Mỗi chi nhánh đều có thông tin rõ ràng và dễ theo dõi</h2>
+        <p class="mt-4 text-stone-500">Khách có thể xem địa chỉ, mô tả, liên hệ và danh sách phòng của từng nơi.</p>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-3">
+        <article v-for="branch in branches" :key="branch.name" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
+          <div class="h-56 bg-[linear-gradient(135deg,#f5f5f4,#e7e5e4,#fafaf9)]"></div>
+          <div class="p-6">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h3 class="text-xl font-semibold text-stone-900">{{ branch.name }}</h3>
+                <p class="mt-2 text-sm text-stone-500">{{ branch.address }}</p>
+              </div>
+              <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">
+                {{ branch.rooms }} phòng
+              </span>
+            </div>
+            <p class="mt-4 text-sm leading-7 text-stone-600">{{ branch.description }}</p>
+            <div class="mt-5 flex items-center justify-between text-sm">
+              <span class="text-stone-500">{{ branch.phone }}</span>
+              <button class="font-medium text-stone-900 transition hover:text-stone-600">Xem chi tiết</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="phong" class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+      <div class="mb-8 max-w-2xl">
+        <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Danh sách phòng</p>
+        <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Tìm kiếm nhẹ nhàng, lọc rõ ràng, xem phòng trống dễ hiểu</h2>
+      </div>
+
+      <div class="mb-6 grid gap-4 rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-stone-200 lg:grid-cols-5">
+        <input type="text" placeholder="Tìm theo tên phòng hoặc chi nhánh" class="rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none lg:col-span-2" />
+        <select class="rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none">
+          <option>Loại phòng</option>
+          <option>Standard</option>
+          <option>Deluxe</option>
+          <option>Suite</option>
+        </select>
+        <select class="rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none">
+          <option>Mức giá</option>
+          <option>Dưới 1 triệu</option>
+          <option>1 - 2 triệu</option>
+          <option>Trên 2 triệu</option>
+        </select>
+        <button class="rounded-2xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90">
+          Lọc phòng
+        </button>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-3">
+        <article v-for="room in rooms" :key="room.name" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
+          <div class="h-56 bg-[linear-gradient(135deg,#fafaf9,#e7e5e4,#f5f5f4)]"></div>
+          <div class="p-6">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h3 class="text-xl font-semibold text-stone-900">{{ room.name }}</h3>
+                <p class="mt-2 text-sm text-stone-500">{{ room.branch }}</p>
+              </div>
+              <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+                {{ room.status }}
+              </span>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2 text-xs">
+              <span v-for="tag in room.tags" :key="tag" class="rounded-full bg-stone-100 px-3 py-2 text-stone-700">
+                {{ tag }}
+              </span>
+            </div>
+
+            <div class="mt-5 flex items-end justify-between">
+              <div>
+                <p class="text-sm text-stone-500">Giá / đêm</p>
+                <p class="text-2xl font-semibold text-stone-900">{{ room.price }}</p>
+              </div>
+              <button class="rounded-2xl border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-100">
+                Chi tiết phòng
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="dat-phong" class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+      <div class="grid gap-8 lg:grid-cols-[1fr_0.92fr]">
+        <div class="rounded-[32px] bg-white p-7 shadow-sm ring-1 ring-stone-200">
+          <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Quy trình đặt phòng</p>
+          <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Đơn giản, rõ chi phí và thuận tiện theo dõi</h2>
+          <div class="mt-8 space-y-5">
+            <div v-for="(step, index) in bookingSteps" :key="step.title" class="flex gap-4 rounded-3xl bg-stone-50 p-5 ring-1 ring-stone-200">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-stone-900 text-lg font-semibold text-white">
+                {{ index + 1 }}
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-stone-900">{{ step.title }}</h3>
+                <p class="mt-2 text-sm leading-7 text-stone-500">{{ step.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-[32px] bg-white p-7 shadow-sm ring-1 ring-stone-200">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm text-stone-500">Thông tin booking</p>
+              <h3 class="text-2xl font-semibold text-stone-900">Tổng tiền được hiển thị rõ ràng</h3>
+            </div>
+            <span class="rounded-full bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
+              Chờ xác nhận
             </span>
           </div>
 
-          <div class="bg-indigo-50 px-6 py-3 border-b border-indigo-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <span class="text-sm font-semibold text-indigo-800">🛠️ Trình chấm điểm API:</span>
-            
-            <div class="flex flex-wrap items-center gap-3">
-              <a :href="API_URL" target="_blank" rel="noopener noreferrer" 
-                 class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs px-3 py-2 rounded shadow transition flex items-center gap-1">
-                <span>🌐 Xem Tất Cả User</span>
-              </a>
-
-              <div class="flex items-center shadow-sm">
-                <input v-model="searchApiId" type="text" placeholder="Nhập ID (VD: 6)" 
-                       class="text-xs px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-green-500 w-28 placeholder-gray-400">
-                <button @click="openApiDetail" 
-                        class="bg-green-500 hover:bg-green-600 text-white font-medium text-xs px-3 py-2 rounded-r-md transition flex items-center gap-1">
-                  <span>🔍 Xem 1 User</span>
-                </button>
+          <div class="mt-6 space-y-4 rounded-3xl bg-stone-50 p-5 ring-1 ring-stone-200">
+            <div class="flex items-center justify-between text-sm text-stone-700">
+              <span>Phòng Deluxe Ocean View</span>
+              <span>1.450.000đ</span>
+            </div>
+            <div class="flex items-center justify-between text-sm text-stone-700">
+              <span>2 đêm lưu trú</span>
+              <span>2.900.000đ</span>
+            </div>
+            <div class="flex items-center justify-between text-sm text-stone-700">
+              <span>Ăn sáng buffet</span>
+              <span>250.000đ</span>
+            </div>
+            <div class="flex items-center justify-between text-sm text-stone-700">
+              <span>Massage thư giãn</span>
+              <span>500.000đ</span>
+            </div>
+            <div class="border-t border-stone-200 pt-4">
+              <div class="flex items-center justify-between">
+                <span class="text-base font-semibold text-stone-900">Tổng cộng</span>
+                <span class="text-3xl font-semibold text-stone-900">3.650.000đ</span>
               </div>
             </div>
           </div>
 
-          <div v-if="loading" class="p-10 text-center text-gray-500">
-             Đang tải dữ liệu...
+          <div class="mt-6 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-3xl bg-stone-50 p-5 ring-1 ring-stone-200">
+              <p class="text-sm text-stone-500">Mã booking</p>
+              <p class="mt-2 text-lg font-semibold text-stone-900">BK-2026-00125</p>
+            </div>
+            <div class="rounded-3xl bg-stone-50 p-5 ring-1 ring-stone-200">
+              <p class="text-sm text-stone-500">Trạng thái</p>
+              <p class="mt-2 text-lg font-semibold text-emerald-700">Đã gửi yêu cầu</p>
+            </div>
           </div>
-          
-          <div class="overflow-x-auto" v-else>
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider border-b">
-                  <th class="py-4 px-6 font-bold w-20 text-center">STT</th>
-                  <th class="py-4 px-6 font-bold">Họ và Tên</th>
-                  <th class="py-4 px-6 font-bold">Thông tin liên hệ</th>
-                  <th class="py-4 px-6 font-bold text-center w-32">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-100">
-                <tr v-if="users.length === 0">
-                  <td colspan="4" class="py-10 text-center text-gray-500 italic">Chưa có dữ liệu.</td>
-                </tr>
-                
-                <tr v-for="(user, index) in users" :key="user.id" class="hover:bg-indigo-50 transition">
-                  <td class="py-4 px-6 text-center text-indigo-600 font-black text-lg">
-                    #{{ index + 1 }}
-                  </td>
-                  
-                  <td class="py-4 px-6">
-                    <div class="font-bold text-gray-900 text-base">{{ user.name }}</div>
-                    <div class="text-xs text-gray-400 mt-1 font-mono">ID: {{ user.id }}</div>
-                  </td>
-                  
-                  <td class="py-4 px-6 text-sm text-gray-600 space-y-1">
-                    <div class="flex items-center gap-2">
-                      <span class="text-gray-400">📧</span> {{ user.email || '---' }}
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <span class="text-gray-400">📞</span> {{ user.phone || '---' }}
-                    </div>
-                  </td>
-                  
-                  <td class="py-4 px-6 text-center">
-                    <div class="flex justify-center gap-2">
-                      <button @click="editUser(user)" class="text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md font-medium transition text-sm">Sửa</button>
-                      <button @click="deleteUser(user.id)" class="text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md font-medium transition text-sm">Xóa</button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+
+          <button class="mt-6 w-full rounded-2xl bg-stone-900 px-5 py-4 text-sm font-semibold text-white transition hover:opacity-90">
+            Xác nhận đặt phòng
+          </button>
         </div>
       </div>
+    </section>
 
-    </div>
+    <section id="danh-gia" class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+      <div class="mb-8 max-w-2xl">
+        <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Đánh giá</p>
+        <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Phản hồi chân thật giúp khách hàng yên tâm hơn khi lựa chọn</h2>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-3">
+        <article v-for="review in reviews" :key="review.name" class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+          <div class="mb-4 flex items-center gap-1 text-amber-500">
+            <span v-for="n in 5" :key="n">★</span>
+          </div>
+          <p class="text-sm leading-7 text-stone-600">“{{ review.content }}”</p>
+          <div class="mt-6 flex items-center justify-between">
+            <div>
+              <p class="font-semibold text-stone-900">{{ review.name }}</p>
+              <p class="text-sm text-stone-500">{{ review.room }}</p>
+            </div>
+            <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">{{ review.score }}/5</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+      <div class="rounded-[36px] bg-white p-8 text-center shadow-sm ring-1 ring-stone-200 sm:p-12">
+        <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Bắt đầu ngay</p>
+        <h2 class="mt-4 text-3xl font-semibold text-stone-900 sm:text-5xl">Một trang chủ nhẹ nhàng, trang trọng và đủ chức năng cần có</h2>
+        <p class="mx-auto mt-5 max-w-3xl text-base leading-8 text-stone-500 sm:text-lg">
+          Thiết kế ưu tiên sự tinh tế, dễ nhìn và có thể dẫn sang các màn hình như đăng ký, đăng nhập, hồ sơ cá nhân,
+          phòng, booking, lịch sử đặt phòng và đánh giá sau khi sử dụng dịch vụ.
+        </p>
+        <div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <button class="rounded-2xl bg-stone-900 px-6 py-4 text-sm font-semibold text-white transition hover:opacity-90">
+            Đặt phòng ngay
+          </button>
+          <button class="rounded-2xl border border-stone-300 bg-white px-6 py-4 text-sm font-semibold text-stone-900 transition hover:bg-stone-100">
+            Xem thêm thông tin
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="border-t border-stone-200 bg-white">
+      <div class="mx-auto grid max-w-7xl gap-8 px-6 py-10 text-sm text-stone-500 lg:grid-cols-4 lg:px-8">
+        <div>
+          <p class="text-lg font-semibold text-stone-900">Hotel Luxe</p>
+          <p class="mt-3 leading-7">Không gian đặt phòng trực tuyến tinh gọn, dễ dùng và phù hợp để phát triển thành website hoàn chỉnh.</p>
+        </div>
+        <div>
+          <p class="font-semibold text-stone-900">Tài khoản</p>
+          <ul class="mt-4 space-y-3">
+            <li>Đăng ký / Đăng nhập</li>
+            <li>Quên mật khẩu</li>
+            <li>Đổi mật khẩu</li>
+            <li>Cập nhật hồ sơ</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-semibold text-stone-900">Đặt phòng</p>
+          <ul class="mt-4 space-y-3">
+            <li>Tìm kiếm và lọc phòng</li>
+            <li>Xem phòng trống</li>
+            <li>Chọn dịch vụ đi kèm</li>
+            <li>Theo dõi trạng thái booking</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-semibold text-stone-900">Liên hệ</p>
+          <ul class="mt-4 space-y-3">
+            <li>Hotline: 1900 6868</li>
+            <li>Email: support@hotelluxe.vn</li>
+            <li>Địa chỉ: Hệ thống chi nhánh toàn quốc</li>
+          </ul>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-
-const API_URL = 'https://api.cnttstu.online/users';
-
-const users = ref([]);
-const loading = ref(true);
-const isEditing = ref(false);
-const form = ref({ id: '', name: '', email: '', phone: '' });
-
-// Biến lưu trữ ID mà người dùng gõ vào ô tìm kiếm API
-const searchApiId = ref('');
-
-// Hàm mở API chi tiết theo ID
-const openApiDetail = () => {
-  if (!searchApiId.value.trim()) {
-    alert('Vui lòng nhập số ID (Ví dụ: 6) để xem chi tiết!');
-    return;
+const featureGroups = [
+  {
+    icon: '👤',
+    title: 'Tài khoản',
+    description: 'Người dùng có thể tạo tài khoản và quản lý thông tin cá nhân thuận tiện.',
+    items: [
+      'Đăng ký, đăng nhập, đăng xuất',
+      'Quên mật khẩu',
+      'Đổi mật khẩu',
+      'Cập nhật hồ sơ cá nhân'
+    ]
+  },
+  {
+    icon: '🏨',
+    title: 'Chi nhánh',
+    description: 'Thông tin từng chi nhánh được trình bày rõ ràng, dễ theo dõi.',
+    items: [
+      'Xem danh sách chi nhánh',
+      'Xem địa chỉ, mô tả, liên hệ',
+      'Xem danh sách phòng theo chi nhánh',
+      'Đi tới chi tiết phòng'
+    ]
+  },
+  {
+    icon: '🛏️',
+    title: 'Phòng',
+    description: 'Hỗ trợ tìm phòng theo nhu cầu và xem thông tin chi tiết trước khi đặt.',
+    items: [
+      'Tìm theo ngày nhận và trả phòng',
+      'Lọc theo loại phòng, giá, tiện nghi, sức chứa',
+      'Xem chi tiết phòng',
+      'Hiển thị phòng còn trống'
+    ]
+  },
+  {
+    icon: '📄',
+    title: 'Booking',
+    description: 'Luồng đặt phòng đầy đủ từ chọn phòng đến theo dõi trạng thái và đánh giá.',
+    items: [
+      'Đặt phòng và nhập thông tin người đặt',
+      'Chọn dịch vụ đi kèm, tính tổng tiền',
+      'Xác nhận và lưu lịch sử booking',
+      'Xem chi tiết, hủy đơn, theo dõi trạng thái, gửi đánh giá'
+    ]
   }
-  // Tự động nối link và mở sang tab mới
-  window.open(`${API_URL}/${searchApiId.value.trim()}`, '_blank', 'noopener,noreferrer');
-};
+]
 
-const fetchUsers = async () => {
-  loading.value = true;
-  try {
-    const res = await fetch(API_URL);
-    if(res.ok) users.value = await res.json();
-  } catch (error) {
-    console.error(error);
-  } finally {
-    loading.value = false;
+const branches = [
+  {
+    name: 'Hotel Luxe Sài Gòn',
+    address: 'Quận 1, TP. Hồ Chí Minh',
+    rooms: 32,
+    phone: '028 3999 6868',
+    description: 'Không gian hiện đại, vị trí thuận tiện và phù hợp cho cả chuyến đi nghỉ ngơi lẫn công tác.'
+  },
+  {
+    name: 'Hotel Luxe Đà Nẵng',
+    address: 'Mỹ Khê, Đà Nẵng',
+    rooms: 28,
+    phone: '0236 3888 6868',
+    description: 'Gần biển, yên tĩnh, nhiều lựa chọn phòng đẹp cùng các dịch vụ thư giãn đi kèm.'
+  },
+  {
+    name: 'Hotel Luxe Hà Nội',
+    address: 'Hoàn Kiếm, Hà Nội',
+    rooms: 24,
+    phone: '024 3666 6868',
+    description: 'Phong cách thanh lịch, ấm cúng và thuận tiện để khám phá trung tâm thành phố.'
   }
-};
+]
 
-const saveUser = async () => {
-  try {
-    const method = isEditing.value ? 'PUT' : 'POST';
-    const url = isEditing.value ? `${API_URL}/${form.value.id}` : API_URL;
-    
-    await fetch(url, {
-      method: method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: form.value.name,
-        email: form.value.email,
-        phone: form.value.phone
-      })
-    });
-    
-    resetForm();
-    await fetchUsers(); 
-  } catch (error) {
-    alert('Lỗi kết nối đến máy chủ!');
+const rooms = [
+  {
+    name: 'Deluxe Ocean View',
+    branch: 'Chi nhánh Đà Nẵng',
+    status: 'Còn trống',
+    price: '1.450.000đ',
+    tags: ['2 người', 'View đẹp', 'Ăn sáng', 'Ban công']
+  },
+  {
+    name: 'Family Premium',
+    branch: 'Chi nhánh Sài Gòn',
+    status: 'Sẵn sàng đặt',
+    price: '2.100.000đ',
+    tags: ['4 người', 'Rộng rãi', 'Phù hợp gia đình', 'Bồn tắm']
+  },
+  {
+    name: 'Suite Signature',
+    branch: 'Chi nhánh Hà Nội',
+    status: 'Còn 1 phòng',
+    price: '3.800.000đ',
+    tags: ['Không gian riêng', 'Sang trọng', 'Dịch vụ tốt', 'Yên tĩnh']
   }
-};
+]
 
-const editUser = (user) => {
-  isEditing.value = true;
-  form.value = { ...user };
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-const deleteUser = async (id) => {
-  if (!confirm('Bạn có chắc muốn xóa?')) return;
-  try {
-    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    await fetchUsers();
-  } catch (error) {
-    alert('Lỗi kết nối khi xóa!');
+const bookingSteps = [
+  {
+    title: 'Chọn phòng phù hợp',
+    description: 'Khách hàng xem chi nhánh, ngày ở, loại phòng, số người và tình trạng còn phòng trước khi đặt.'
+  },
+  {
+    title: 'Thêm dịch vụ cần thiết',
+    description: 'Có thể chọn thêm bữa sáng, massage, ăn tối hoặc ghi chú cho khách sạn.'
+  },
+  {
+    title: 'Xem tổng chi phí',
+    description: 'Hệ thống hiển thị rõ giá phòng, số đêm lưu trú và các dịch vụ đã chọn.'
+  },
+  {
+    title: 'Theo dõi booking',
+    description: 'Người dùng có thể xem lịch sử booking, mã đơn, trạng thái và đánh giá sau khi sử dụng.'
   }
-};
+]
 
-const resetForm = () => {
-  isEditing.value = false;
-  form.value = { id: '', name: '', email: '', phone: '' };
-};
-
-onMounted(() => {
-  fetchUsers();
-});
+const reviews = [
+  {
+    name: 'Nguyễn Minh Anh',
+    room: 'Deluxe Ocean View',
+    score: '5.0',
+    content: 'Mọi thứ hiển thị rõ ràng, dễ thao tác và cảm giác rất dễ chịu khi sử dụng.'
+  },
+  {
+    name: 'Trần Khánh Vy',
+    room: 'Family Premium',
+    score: '4.9',
+    content: 'Phần đặt phòng và theo dõi booking rất gọn, không bị rối và nhìn khá sang.'
+  },
+  {
+    name: 'Phạm Đức Long',
+    room: 'Suite Signature',
+    score: '5.0',
+    content: 'Giao diện nhẹ nhàng, trang trọng và phù hợp với một website khách sạn thực tế.'
+  }
+]
 </script>
+
+<style scoped>
+html {
+  scroll-behavior: smooth;
+}
+</style>
