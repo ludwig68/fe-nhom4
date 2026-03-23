@@ -8,6 +8,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
 import ChangePasswordView from '@/views/ChangePasswordView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import BranchesView from '@/views/BranchesView.vue'
 import BranchDetailView from '@/views/BranchDetailView.vue'
 
 // Khởi tạo đối tượng router với lịch sử duyệt web do trình duyệt quản lý
@@ -48,6 +49,11 @@ const router = createRouter({
       name: 'profile',
       component: ProfileView,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/branches',
+      name: 'branches',
+      component: BranchesView
     },
     {
       path: '/branches/:id',
