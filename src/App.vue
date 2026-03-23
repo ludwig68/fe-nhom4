@@ -1,31 +1,67 @@
 <template>
-  <div class="min-h-screen bg-stone-50 text-stone-800">
-    <header class="sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur">
-      <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-        <div class="flex items-center gap-3">
-          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-sm font-bold text-white">
-            HL
-          </div>
-          <div>
-            <p class="text-lg font-semibold tracking-wide text-stone-900">Hotel Luxe</p>
-            <p class="text-xs text-stone-500">Đặt phòng dễ dàng, nghỉ dưỡng trọn vẹn</p>
-          </div>
-        </div>
+  <RouterView v-if="!isHomeRoute" />
 
-        <nav class="hidden items-center gap-7 text-sm text-stone-600 lg:flex">
-          <a href="#gioi-thieu" class="transition hover:text-stone-900">Giới thiệu</a>
-          <a href="#chi-nhanh" class="transition hover:text-stone-900">Chi nhánh</a>
-          <a href="#phong" class="transition hover:text-stone-900">Phòng</a>
-          <a href="#dat-phong" class="transition hover:text-stone-900">Đặt phòng</a>
-          <a href="#danh-gia" class="transition hover:text-stone-900">Đánh giá</a>
-        </nav>
+  <div v-else class="min-h-screen bg-stone-50 text-stone-800">
+    <header class="sticky top-0 z-50 bg-transparent">
+      <div class="mx-auto max-w-7xl px-6 py-4 lg:px-8">
+        <div class="flex items-center justify-between gap-6 rounded-[28px] border border-stone-300/70 bg-white/65 px-4 py-3 shadow-sm shadow-stone-200/30 backdrop-blur-[3px]">
+          <div class="flex items-center gap-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-900 text-sm font-semibold tracking-[0.2em] text-white">
+              HL
+            </div>
+            <div>
+              <p class="text-lg font-semibold tracking-[0.08em] text-stone-900">HOTEL LUXE</p>
+              <p class="text-xs text-stone-500">Hệ thống đặt phòng khách sạn</p>
+            </div>
+          </div>
 
-        <div class="hidden items-center gap-3 lg:flex">
-          <button class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
-            Đăng nhập
-          </button>
-          <button class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90">
-            Đăng ký
+          <nav class="hidden items-center gap-2 rounded-full bg-white/60 px-2 py-2 text-sm text-stone-600 ring-1 ring-stone-200/80 lg:flex">
+            <a href="#gioi-thieu" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Giới thiệu</a>
+            <a href="#chi-nhanh" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Chi nhánh</a>
+            <a href="#phong" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Phòng</a>
+            <a href="#dat-phong" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Đặt phòng</a>
+            <a href="#danh-gia" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Đánh giá</a>
+          </nav>
+
+          <div class="hidden items-center gap-3 lg:flex">
+            <a href="#lien-he" class="rounded-full px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900">
+              Liên hệ
+            </a>
+
+            <template v-if="authStore.isAuthenticated">
+              <RouterLink
+                to="/profile"
+                class="rounded-full border border-stone-300/80 bg-white/70 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-white"
+              >
+                Tài khoản
+              </RouterLink>
+              <button
+                type="button"
+                @click="handleLogout"
+                class="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+              >
+                Đăng xuất
+              </button>
+            </template>
+
+            <template v-else>
+              <RouterLink
+                to="/login"
+                class="rounded-full border border-stone-300/80 bg-white/70 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-white"
+              >
+                Đăng nhập
+              </RouterLink>
+              <RouterLink
+                to="/register"
+                class="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+              >
+                Đăng ký
+              </RouterLink>
+            </template>
+          </div>
+
+          <button class="flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-300/80 bg-white/70 text-stone-700 lg:hidden">
+            <span class="text-lg">☰</span>
           </button>
         </div>
       </div>
@@ -36,17 +72,17 @@
         <div>
           <div class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-stone-600 shadow-sm ring-1 ring-stone-200">
             <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-            Không gian đặt phòng nhẹ nhàng, rõ ràng và dễ sử dụng
+            Website đặt phòng đơn giản, dễ dùng và dễ theo dõi
           </div>
 
           <h1 class="mt-6 max-w-4xl text-4xl font-bold leading-tight tracking-tight text-stone-900 sm:text-5xl xl:text-6xl">
-            Chọn nơi nghỉ phù hợp,
-            <span class="text-stone-500">đặt phòng nhanh và theo dõi booking thuận tiện</span>
+            Đặt phòng khách sạn
+            <span class="text-stone-500">nhanh chóng, rõ ràng và dễ theo dõi</span>
           </h1>
 
           <p class="mt-6 max-w-2xl text-base leading-8 text-stone-600 sm:text-lg">
-            Giao diện tập trung vào trải nghiệm người dùng, giúp khách dễ xem chi nhánh, tìm phòng trống,
-            chọn dịch vụ đi kèm, xác nhận đặt phòng và quản lý lịch sử booking trên cùng một hệ thống.
+            Người dùng có thể xem chi nhánh, tìm phòng còn trống, chọn dịch vụ đi kèm,
+            gửi yêu cầu đặt phòng và theo dõi lịch sử đặt phòng trên cùng một website.
           </p>
 
           <div class="mt-8 flex flex-col gap-4 sm:flex-row">
@@ -61,15 +97,15 @@
           <div class="mt-10 grid gap-4 sm:grid-cols-3">
             <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
               <p class="text-2xl font-semibold text-stone-900">12+</p>
-              <p class="mt-2 text-sm leading-6 text-stone-500">Chi nhánh tiện nghi tại nhiều khu vực</p>
+              <p class="mt-2 text-sm leading-6 text-stone-500">Chi nhánh tại nhiều khu vực</p>
             </div>
             <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
               <p class="text-2xl font-semibold text-stone-900">100+</p>
-              <p class="mt-2 text-sm leading-6 text-stone-500">Phòng với nhiều mức giá và sức chứa</p>
+              <p class="mt-2 text-sm leading-6 text-stone-500">Phòng với nhiều mức giá khác nhau</p>
             </div>
             <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
               <p class="text-2xl font-semibold text-stone-900">24/7</p>
-              <p class="mt-2 text-sm leading-6 text-stone-500">Theo dõi booking và hỗ trợ khách hàng</p>
+              <p class="mt-2 text-sm leading-6 text-stone-500">Hỗ trợ khách hàng mỗi ngày</p>
             </div>
           </div>
         </div>
@@ -78,8 +114,8 @@
           <div class="rounded-[28px] bg-stone-50 p-5 ring-1 ring-stone-200">
             <div class="flex items-center justify-between gap-4">
               <div>
-                <p class="text-sm text-stone-500">Tìm kiếm phòng</p>
-                <h3 class="text-2xl font-semibold text-stone-900">Chỉ vài bước là có thể đặt ngay</h3>
+                <p class="text-sm text-stone-500">Tìm phòng</p>
+                <h3 class="text-2xl font-semibold text-stone-900">Tìm phòng phù hợp chỉ trong vài bước</h3>
               </div>
               <span class="rounded-full bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
                 Còn phòng
@@ -105,7 +141,7 @@
                 </select>
               </div>
               <div>
-                <label class="mb-2 block text-sm text-stone-500">Sức chứa</label>
+                <label class="mb-2 block text-sm text-stone-500">Số người</label>
                 <select class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500">
                   <option>Chọn số người</option>
                   <option>2 người</option>
@@ -125,13 +161,13 @@
                 <p class="mt-2 text-lg font-semibold text-stone-900">Ăn sáng, massage</p>
               </div>
               <div class="rounded-2xl bg-white p-4 ring-1 ring-stone-200">
-                <p class="text-xs uppercase tracking-[0.2em] text-stone-400">Hỗ trợ</p>
-                <p class="mt-2 text-lg font-semibold text-stone-900">Xác nhận nhanh</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-400">Xác nhận</p>
+                <p class="mt-2 text-lg font-semibold text-stone-900">Nhanh chóng</p>
               </div>
             </div>
 
             <button class="mt-6 w-full rounded-2xl bg-stone-900 px-5 py-4 text-sm font-semibold text-white transition hover:opacity-90">
-              Xem phòng phù hợp
+              Tìm phòng ngay
             </button>
           </div>
         </div>
@@ -157,7 +193,7 @@
     <section id="chi-nhanh" class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
       <div class="mb-8 max-w-2xl">
         <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Chi nhánh</p>
-        <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Mỗi chi nhánh đều có thông tin rõ ràng và dễ theo dõi</h2>
+        <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Xem thông tin từng chi nhánh một cách rõ ràng</h2>
         <p class="mt-4 text-stone-500">Khách có thể xem địa chỉ, mô tả, liên hệ và danh sách phòng của từng nơi.</p>
       </div>
 
@@ -186,8 +222,8 @@
 
     <section id="phong" class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
       <div class="mb-8 max-w-2xl">
-        <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Danh sách phòng</p>
-        <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Tìm kiếm nhẹ nhàng, lọc rõ ràng, xem phòng trống dễ hiểu</h2>
+        <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Phòng khách sạn</p>
+        <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Tìm kiếm phòng, lọc phòng và xem phòng còn trống</h2>
       </div>
 
       <div class="mb-6 grid gap-4 rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-stone-200 lg:grid-cols-5">
@@ -246,8 +282,8 @@
     <section id="dat-phong" class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
       <div class="grid gap-8 lg:grid-cols-[1fr_0.92fr]">
         <div class="rounded-[32px] bg-white p-7 shadow-sm ring-1 ring-stone-200">
-          <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Quy trình đặt phòng</p>
-          <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Đơn giản, rõ chi phí và thuận tiện theo dõi</h2>
+          <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Các bước đặt phòng</p>
+          <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Đơn giản, rõ ràng và dễ theo dõi</h2>
           <div class="mt-8 space-y-5">
             <div v-for="(step, index) in bookingSteps" :key="step.title" class="flex gap-4 rounded-3xl bg-stone-50 p-5 ring-1 ring-stone-200">
               <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-stone-900 text-lg font-semibold text-white">
@@ -264,8 +300,8 @@
         <div class="rounded-[32px] bg-white p-7 shadow-sm ring-1 ring-stone-200">
           <div class="flex items-center justify-between gap-4">
             <div>
-              <p class="text-sm text-stone-500">Thông tin booking</p>
-              <h3 class="text-2xl font-semibold text-stone-900">Tổng tiền được hiển thị rõ ràng</h3>
+              <p class="text-sm text-stone-500">Thông tin đơn đặt phòng</p>
+              <h3 class="text-2xl font-semibold text-stone-900">Tổng tiền hiển thị rõ ràng</h3>
             </div>
             <span class="rounded-full bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
               Chờ xác nhận
@@ -299,12 +335,12 @@
 
           <div class="mt-6 grid gap-4 sm:grid-cols-2">
             <div class="rounded-3xl bg-stone-50 p-5 ring-1 ring-stone-200">
-              <p class="text-sm text-stone-500">Mã booking</p>
+              <p class="text-sm text-stone-500">Mã đặt phòng</p>
               <p class="mt-2 text-lg font-semibold text-stone-900">BK-2026-00125</p>
             </div>
             <div class="rounded-3xl bg-stone-50 p-5 ring-1 ring-stone-200">
               <p class="text-sm text-stone-500">Trạng thái</p>
-              <p class="mt-2 text-lg font-semibold text-emerald-700">Đã gửi yêu cầu</p>
+              <p class="mt-2 text-lg font-semibold text-emerald-700">Đã gửi yêu cầu đặt phòng</p>
             </div>
           </div>
 
@@ -318,7 +354,7 @@
     <section id="danh-gia" class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
       <div class="mb-8 max-w-2xl">
         <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Đánh giá</p>
-        <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Phản hồi chân thật giúp khách hàng yên tâm hơn khi lựa chọn</h2>
+        <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Đánh giá từ khách đã sử dụng dịch vụ</h2>
       </div>
 
       <div class="grid gap-6 lg:grid-cols-3">
@@ -341,44 +377,66 @@
     <section class="mx-auto max-w-7xl px-6 py-16 lg:px-8">
       <div class="rounded-[36px] bg-white p-8 text-center shadow-sm ring-1 ring-stone-200 sm:p-12">
         <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Bắt đầu ngay</p>
-        <h2 class="mt-4 text-3xl font-semibold text-stone-900 sm:text-5xl">Một trang chủ nhẹ nhàng, trang trọng và đủ chức năng cần có</h2>
+        <h2 class="mt-4 text-3xl font-semibold text-stone-900 sm:text-5xl">Trang chủ đơn giản, rõ ràng và đủ chức năng cần thiết</h2>
         <p class="mx-auto mt-5 max-w-3xl text-base leading-8 text-stone-500 sm:text-lg">
-          Thiết kế ưu tiên sự tinh tế, dễ nhìn và có thể dẫn sang các màn hình như đăng ký, đăng nhập, hồ sơ cá nhân,
-          phòng, booking, lịch sử đặt phòng và đánh giá sau khi sử dụng dịch vụ.
+          Trang chủ có thể dẫn sang các màn hình như đăng ký, đăng nhập, thông tin cá nhân,
+          phòng, đơn đặt phòng, lịch sử đặt phòng và đánh giá sau khi sử dụng dịch vụ.
         </p>
         <div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <button class="rounded-2xl bg-stone-900 px-6 py-4 text-sm font-semibold text-white transition hover:opacity-90">
-            Đặt phòng ngay
-          </button>
-          <button class="rounded-2xl border border-stone-300 bg-white px-6 py-4 text-sm font-semibold text-stone-900 transition hover:bg-stone-100">
-            Xem thêm thông tin
-          </button>
+          <RouterLink
+            to="/register"
+            class="rounded-2xl bg-stone-900 px-6 py-4 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            Đăng ký ngay
+          </RouterLink>
+          <RouterLink
+            to="/login"
+            class="rounded-2xl border border-stone-300 bg-white px-6 py-4 text-sm font-semibold text-stone-900 transition hover:bg-stone-100"
+          >
+            Đăng nhập tài khoản
+          </RouterLink>
+          <RouterLink
+            to="/forgot-password"
+            class="rounded-2xl border border-stone-300 bg-white px-6 py-4 text-sm font-semibold text-stone-900 transition hover:bg-stone-100"
+          >
+            Quên mật khẩu
+          </RouterLink>
         </div>
       </div>
     </section>
 
-    <footer class="border-t border-stone-200 bg-white">
+    <footer id="lien-he" class="border-t border-stone-200 bg-white">
       <div class="mx-auto grid max-w-7xl gap-8 px-6 py-10 text-sm text-stone-500 lg:grid-cols-4 lg:px-8">
         <div>
           <p class="text-lg font-semibold text-stone-900">Hotel Luxe</p>
-          <p class="mt-3 leading-7">Không gian đặt phòng trực tuyến tinh gọn, dễ dùng và phù hợp để phát triển thành website hoàn chỉnh.</p>
+          <p class="mt-3 leading-7">Website đặt phòng khách sạn đơn giản, dễ dùng và có thể phát triển thành hệ thống hoàn chỉnh.</p>
         </div>
         <div>
           <p class="font-semibold text-stone-900">Tài khoản</p>
           <ul class="mt-4 space-y-3">
-            <li>Đăng ký / Đăng nhập</li>
-            <li>Quên mật khẩu</li>
-            <li>Đổi mật khẩu</li>
-            <li>Cập nhật hồ sơ</li>
+            <li>
+              <RouterLink to="/register" class="transition hover:text-stone-900">Đăng ký</RouterLink>
+              /
+              <RouterLink to="/login" class="transition hover:text-stone-900">Đăng nhập</RouterLink>
+            </li>
+            <li>
+              <RouterLink to="/forgot-password" class="transition hover:text-stone-900">Quên mật khẩu</RouterLink>
+            </li>
+            <li>
+              <RouterLink to="/change-password" class="transition hover:text-stone-900">Đổi mật khẩu</RouterLink>
+            </li>
+            <li>
+              <RouterLink to="/profile" class="transition hover:text-stone-900">Cập nhật thông tin cá nhân</RouterLink>
+            </li>
           </ul>
         </div>
         <div>
           <p class="font-semibold text-stone-900">Đặt phòng</p>
           <ul class="mt-4 space-y-3">
             <li>Tìm kiếm và lọc phòng</li>
-            <li>Xem phòng trống</li>
+            <li>Xem phòng còn trống</li>
             <li>Chọn dịch vụ đi kèm</li>
-            <li>Theo dõi trạng thái booking</li>
+            <li>Theo dõi đơn đặt phòng</li>
           </ul>
         </div>
         <div>
@@ -395,22 +453,49 @@
 </template>
 
 <script setup>
+import { computed, onMounted } from 'vue'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
+const isHomeRoute = computed(() => route.name === 'home')
+
+onMounted(async () => {
+  if (authStore.isAuthenticated && !authStore.user) {
+    try {
+      await authStore.fetchMe()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+})
+
+const handleLogout = async () => {
+  await authStore.logout()
+  if (route.name !== 'home') {
+    router.push('/')
+  }
+}
+
 const featureGroups = [
   {
     icon: '👤',
-    title: 'Tài khoản',
-    description: 'Người dùng có thể tạo tài khoản và quản lý thông tin cá nhân thuận tiện.',
+    title: 'Tài khoản người dùng',
+    description: 'Người dùng có thể tạo tài khoản, đăng nhập và quản lý thông tin cá nhân.',
     items: [
       'Đăng ký, đăng nhập, đăng xuất',
       'Quên mật khẩu',
       'Đổi mật khẩu',
-      'Cập nhật hồ sơ cá nhân'
+      'Cập nhật thông tin cá nhân'
     ]
   },
   {
     icon: '🏨',
     title: 'Chi nhánh',
-    description: 'Thông tin từng chi nhánh được trình bày rõ ràng, dễ theo dõi.',
+    description: 'Thông tin từng chi nhánh được trình bày rõ ràng và dễ theo dõi.',
     items: [
       'Xem danh sách chi nhánh',
       'Xem địa chỉ, mô tả, liên hệ',
@@ -421,7 +506,7 @@ const featureGroups = [
   {
     icon: '🛏️',
     title: 'Phòng',
-    description: 'Hỗ trợ tìm phòng theo nhu cầu và xem thông tin chi tiết trước khi đặt.',
+    description: 'Hỗ trợ tìm phòng theo nhu cầu và xem thông tin trước khi đặt.',
     items: [
       'Tìm theo ngày nhận và trả phòng',
       'Lọc theo loại phòng, giá, tiện nghi, sức chứa',
@@ -431,13 +516,13 @@ const featureGroups = [
   },
   {
     icon: '📄',
-    title: 'Booking',
-    description: 'Luồng đặt phòng đầy đủ từ chọn phòng đến theo dõi trạng thái và đánh giá.',
+    title: 'Đặt phòng',
+    description: 'Các bước đặt phòng rõ ràng, dễ hiểu và dễ theo dõi.',
     items: [
       'Đặt phòng và nhập thông tin người đặt',
       'Chọn dịch vụ đi kèm, tính tổng tiền',
-      'Xác nhận và lưu lịch sử booking',
-      'Xem chi tiết, hủy đơn, theo dõi trạng thái, gửi đánh giá'
+      'Xác nhận và lưu lịch sử đặt phòng',
+      'Xem chi tiết đơn, hủy đơn, theo dõi trạng thái, gửi đánh giá'
     ]
   }
 ]
@@ -504,8 +589,8 @@ const bookingSteps = [
     description: 'Hệ thống hiển thị rõ giá phòng, số đêm lưu trú và các dịch vụ đã chọn.'
   },
   {
-    title: 'Theo dõi booking',
-    description: 'Người dùng có thể xem lịch sử booking, mã đơn, trạng thái và đánh giá sau khi sử dụng.'
+    title: 'Theo dõi đơn đặt phòng',
+    description: 'Người dùng có thể xem lịch sử đặt phòng, mã đơn, trạng thái và đánh giá sau khi sử dụng.'
   }
 ]
 
@@ -520,7 +605,7 @@ const reviews = [
     name: 'Trần Khánh Vy',
     room: 'Family Premium',
     score: '4.9',
-    content: 'Phần đặt phòng và theo dõi booking rất gọn, không bị rối và nhìn khá sang.'
+    content: 'Phần đặt phòng và theo dõi đơn đặt phòng rất gọn, không bị rối và nhìn khá sang.'
   },
   {
     name: 'Phạm Đức Long',
@@ -532,7 +617,7 @@ const reviews = [
 </script>
 
 <style scoped>
-html {
+:global(html) {
   scroll-behavior: smooth;
 }
 </style>
