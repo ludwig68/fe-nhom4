@@ -198,22 +198,22 @@
       </div>
 
       <div class="grid gap-6 lg:grid-cols-3">
-        <article v-for="branch in branches" :key="branch.name" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
+        <article v-for="branch in branches" :key="branch.branch_id" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
           <div class="h-56 bg-[linear-gradient(135deg,#f5f5f4,#e7e5e4,#fafaf9)]"></div>
           <div class="p-6">
             <div class="flex items-start justify-between gap-4">
               <div>
-                <h3 class="text-xl font-semibold text-stone-900">{{ branch.name }}</h3>
+                <h3 class="text-xl font-semibold text-stone-900">{{ branch.branch_name }}</h3>
                 <p class="mt-2 text-sm text-stone-500">{{ branch.address }}</p>
               </div>
               <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">
-                {{ branch.rooms }} phòng
+                Chi nhánh
               </span>
             </div>
-            <p class="mt-4 text-sm leading-7 text-stone-600">{{ branch.description }}</p>
+            <p class="mt-4 text-sm leading-7 text-stone-600 line-clamp-3">{{ branch.description }}</p>
             <div class="mt-5 flex items-center justify-between text-sm">
-              <span class="text-stone-500">{{ branch.phone }}</span>
-              <button class="font-medium text-stone-900 transition hover:text-stone-600">Xem chi tiết</button>
+              <span class="text-stone-500">{{ branch.phone || 'Chưa cập nhật số điện thoại' }}</span>
+              <button @click="router.push('/branches/' + branch.branch_id)" class="font-medium text-stone-900 transition hover:text-stone-600">Xem chi tiết</button>
             </div>
           </div>
         </article>
@@ -453,17 +453,25 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { branchService } from '@/services/branch.service'
 
+// Khởi tạo các hook của vue-router để lấy thông tin đường dẫn và điều hướng
 const route = useRoute()
 const router = useRouter()
+// Khởi tạo store quản lý tài khoản để dùng cho hiển thị đăng nhập/đăng xuất
 const authStore = useAuthStore()
+// Biến lưu danh sách chi nhánh lấy từ API
+const branches = ref([])
 
+// Biến logic kiểm tra xem có đang ở trang chủ không (Tên route là 'home')
 const isHomeRoute = computed(() => route.name === 'home')
 
+// Hook chạy ngay khi giao diện (App.vue) được gắn vào màn hình
 onMounted(async () => {
+  // 1. Kiểm tra nếu có token trong máy nhưng dữ liệu user trống thì gọi API lấy user
   if (authStore.isAuthenticated && !authStore.user) {
     try {
       await authStore.fetchMe()
@@ -471,15 +479,26 @@ onMounted(async () => {
       console.error(error)
     }
   }
+  
+  // 2. Gọi API lấy danh sách chi nhánh khách sạn để hiển thị ở trang chủ
+  try {
+    const res = await branchService.getAllBranches()
+    branches.value = res.data?.data || []
+  } catch (err) {
+    console.error('Lỗi tải chi nhánh', err)
+  }
 })
 
+// Hàm xử lý khi người dùng bấm nút Đăng xuất
 const handleLogout = async () => {
-  await authStore.logout()
+  await authStore.logout() // Xoá token và user
+  // Nếu đang ở trang phụ thì đẩy về lại trang chủ
   if (route.name !== 'home') {
     router.push('/')
   }
 }
 
+// Khai báo mảng dữ liệu tĩnh (hardcode) dùng cho phần hiển thị giao diện mẫu
 const featureGroups = [
   {
     icon: '👤',
@@ -527,29 +546,7 @@ const featureGroups = [
   }
 ]
 
-const branches = [
-  {
-    name: 'Hotel Luxe Sài Gòn',
-    address: 'Quận 1, TP. Hồ Chí Minh',
-    rooms: 32,
-    phone: '028 3999 6868',
-    description: 'Không gian hiện đại, vị trí thuận tiện và phù hợp cho cả chuyến đi nghỉ ngơi lẫn công tác.'
-  },
-  {
-    name: 'Hotel Luxe Đà Nẵng',
-    address: 'Mỹ Khê, Đà Nẵng',
-    rooms: 28,
-    phone: '0236 3888 6868',
-    description: 'Gần biển, yên tĩnh, nhiều lựa chọn phòng đẹp cùng các dịch vụ thư giãn đi kèm.'
-  },
-  {
-    name: 'Hotel Luxe Hà Nội',
-    address: 'Hoàn Kiếm, Hà Nội',
-    rooms: 24,
-    phone: '024 3666 6868',
-    description: 'Phong cách thanh lịch, ấm cúng và thuận tiện để khám phá trung tâm thành phố.'
-  }
-]
+
 
 const rooms = [
   {
