@@ -1,15 +1,27 @@
-// Gọi axios utility giống auth service
-import http from './http'
+/**
+ * =============================================================
+ * FILE: frontend/src/services/branch.service.js
+ * MÔ TẢ: Service gọi API backend cho module Chi nhánh
+ * =============================================================
+ */
 
-// Tập hợp các hàm gọi Backend API cho module Chi nhánh
+import http from './http';
+
 export const branchService = {
-  // Phương thức GET: Lấy danh sách toàn bộ các chi nhánh
+  /**
+   * GET /api/branches
+   * Lấy danh sách tất cả chi nhánh đang hoạt động
+   */
   getAllBranches() {
-    return http.get('/api/branches')
+    return http.get('/api/branches');
   },
-  
-  // Phương thức GET: Lấy thông tin duy nhất một chi nhánh thông qua biến ID
+
+  /**
+   * GET /api/branches/:id
+   * Lấy chi tiết 1 chi nhánh theo ID
+   * @param {string|number} id - ID chi nhánh
+   */
   getBranchById(id) {
-    return http.get(`/api/branches/${id}`)
+    return http.get(`/api/branches/${id}`);
   }
-}
+};

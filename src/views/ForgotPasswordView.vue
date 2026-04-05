@@ -158,6 +158,7 @@
 import { reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { authService } from '@/services/auth.service'
+import { parseApiError } from '@/utils/api-error'
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -180,21 +181,6 @@ const resetForm = reactive({
   newPassword: '',
   confirmPassword: ''
 })
-
-const getErrorMessage = (error, fallback) => {
-  const messageText = error?.response?.data?.message
-  const errors = error?.response?.data?.errors
-
-  if (messageText && messageText !== 'Dữ liệu không hợp lệ') {
-    return messageText
-  }
-
-  if (Array.isArray(errors) && errors.length > 0) {
-    return errors[0]
-  }
-
-  return messageText || fallback
-}
 
 const handleRequestCode = async () => {
   requestSuccess.value = ''
@@ -220,7 +206,7 @@ const handleRequestCode = async () => {
     resetForm.email = requestForm.email.trim()
     resetForm.code = demoCode.value
   } catch (error) {
-    requestError.value = getErrorMessage(error, 'Không thể gửi mã xác minh')
+    requestError.value = parseApiError(error, 'Không thể gửi mã xác minh')
   } finally {
     loadingRequest.value = false
   }
@@ -264,7 +250,7 @@ const handleResetPassword = async () => {
     resetForm.newPassword = ''
     resetForm.confirmPassword = ''
   } catch (error) {
-    resetError.value = getErrorMessage(error, 'Đặt lại mật khẩu thất bại')
+    resetError.value = parseApiError(error, 'Đặt lại mật khẩu thất bại')
   } finally {
     loadingReset.value = false
   }

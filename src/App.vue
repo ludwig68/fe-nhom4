@@ -16,8 +16,8 @@
           <nav class="hidden items-center gap-2 rounded-full bg-white/60 px-2 py-2 text-sm text-stone-600 ring-1 ring-stone-200/80 lg:flex">
             <a href="#gioi-thieu" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Giới thiệu</a>
             <RouterLink to="/branches" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Chi nhánh</RouterLink>
-            <a href="#phong" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Phòng</a>
-            <a href="#dat-phong" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Đặt phòng</a>
+            <RouterLink to="/rooms" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Phòng</RouterLink>
+            <RouterLink to="/booking" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Đặt phòng</RouterLink>
             <a href="#danh-gia" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Đánh giá</a>
           </nav>
 
@@ -87,9 +87,9 @@
           </p>
 
           <div class="mt-8 flex flex-col gap-4 sm:flex-row">
-            <button class="rounded-2xl bg-stone-900 px-6 py-4 text-sm font-semibold text-white transition hover:opacity-90">
+            <RouterLink to="/rooms" class="inline-flex items-center justify-center rounded-2xl bg-stone-900 px-6 py-4 text-sm font-semibold text-white transition hover:opacity-90">
               Tìm phòng ngay
-            </button>
+            </RouterLink>
             <RouterLink to="/branches" class="inline-flex items-center justify-center rounded-2xl border border-stone-300 bg-white px-6 py-4 text-sm font-semibold text-stone-800 transition hover:bg-stone-100">
               Xem chi nhánh
             </RouterLink>
@@ -167,9 +167,9 @@
               </div>
             </div>
 
-            <button class="mt-6 w-full rounded-2xl bg-stone-900 px-5 py-4 text-sm font-semibold text-white transition hover:opacity-90">
+            <RouterLink to="/rooms" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-stone-900 px-5 py-4 text-sm font-semibold text-white transition hover:opacity-90">
               Tìm phòng ngay
-            </button>
+            </RouterLink>
           </div>
         </div>
       </div>
@@ -271,9 +271,9 @@
                 <p class="text-sm text-stone-500">Giá / đêm</p>
                 <p class="text-2xl font-semibold text-stone-900">{{ room.price }}</p>
               </div>
-              <button class="rounded-2xl border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-100">
+              <RouterLink to="/rooms" class="inline-flex items-center justify-center rounded-2xl border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-100">
                 Chi tiết phòng
-              </button>
+              </RouterLink>
             </div>
           </div>
         </article>
@@ -345,9 +345,12 @@
             </div>
           </div>
 
-          <button class="mt-6 w-full rounded-2xl bg-stone-900 px-5 py-4 text-sm font-semibold text-white transition hover:opacity-90">
-            Xác nhận đặt phòng
-          </button>
+          <RouterLink
+            to="/booking"
+            class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-stone-900 px-5 py-4 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            Đặt phòng ngay
+          </RouterLink>
         </div>
       </div>
     </section>

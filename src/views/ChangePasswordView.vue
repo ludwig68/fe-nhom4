@@ -90,6 +90,7 @@
 import { reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { authService } from '@/services/auth.service'
+import { parseApiError } from '@/utils/api-error'
 
 const loading = ref(false)
 const successMessage = ref('')
@@ -100,21 +101,6 @@ const form = reactive({
   newPassword: '',
   confirmPassword: ''
 })
-
-const getErrorMessage = (error, fallback) => {
-  const messageText = error?.response?.data?.message
-  const errors = error?.response?.data?.errors
-
-  if (messageText && messageText !== 'Dữ liệu không hợp lệ') {
-    return messageText
-  }
-
-  if (Array.isArray(errors) && errors.length > 0) {
-    return errors[0]
-  }
-
-  return messageText || fallback
-}
 
 const handleChangePassword = async () => {
   successMessage.value = ''
@@ -153,7 +139,7 @@ const handleChangePassword = async () => {
     form.newPassword = ''
     form.confirmPassword = ''
   } catch (error) {
-    errorMessage.value = getErrorMessage(error, 'Đổi mật khẩu thất bại')
+    errorMessage.value = parseApiError(error, 'Đổi mật khẩu thất bại')
   } finally {
     loading.value = false
   }

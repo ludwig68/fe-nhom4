@@ -22,14 +22,14 @@
       </div>
 
       <div v-else class="grid gap-6 lg:grid-cols-3">
-        <article v-for="branch in branches" :key="branch.branch_id" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
+        <article v-for="branch in branches" :key="branch.branchId" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
           <div class="h-56 bg-[linear-gradient(135deg,#f5f5f4,#e7e5e4,#fafaf9)] flex items-center justify-center">
             <span class="text-stone-400">Ảnh chi nhánh</span>
           </div>
           <div class="p-6">
             <div class="flex items-start justify-between gap-4">
               <div>
-                <h3 class="text-xl font-semibold text-stone-900">{{ branch.branch_name }}</h3>
+                <h3 class="text-xl font-semibold text-stone-900">{{ branch.branchName }}</h3>
                 <p class="mt-2 text-sm text-stone-500">{{ branch.address }}</p>
               </div>
               <span v-if="branch.is_active" class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">Đang hoạt động</span>
@@ -38,7 +38,7 @@
             <p class="mt-4 text-sm leading-7 text-stone-600 line-clamp-3">{{ branch.description || 'Chưa có mô tả' }}</p>
             <div class="mt-5 flex items-center justify-between text-sm">
               <span class="text-stone-500">{{ branch.phone || 'Chưa cập nhật SĐT' }}</span>
-              <RouterLink :to="'/branches/' + branch.branch_id" class="font-medium text-stone-900 transition hover:text-stone-600">Xem chi tiết</RouterLink>
+              <RouterLink :to="'/branches/' + branch.branchId" class="font-medium text-stone-900 transition hover:text-stone-600">Xem chi tiết</RouterLink>
             </div>
           </div>
         </article>

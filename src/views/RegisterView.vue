@@ -6,8 +6,7 @@
           <p class="text-sm text-stone-500">Tạo tài khoản mới</p>
           <h1 class="mt-2 text-3xl font-semibold text-stone-900">Đăng ký tài khoản</h1>
           <p class="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
-            Form này bám theo validator hiện tại của backend: username tối thiểu 3 ký tự, họ tên tối thiểu
-            2 ký tự, email hợp lệ và mật khẩu tối thiểu 6 ký tự.
+            Chảo mừng bạn đến với hệ thống đặt phòng khách sạn! Hãy tạo tài khoản để trải nghiệm việc đặt phòng dễ dàng và nhanh chóng.
           </p>
         </div>
 
@@ -28,7 +27,7 @@
             type="text"
             autocomplete="username"
             class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="itnhat3kytu"
+            placeholder="Tối thiểu 3 ký tự"
           />
         </div>
 
@@ -52,7 +51,7 @@
             type="email"
             autocomplete="email"
             class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="name@example.com"
+            placeholder="tenban@example.com"
           />
         </div>
 
@@ -65,7 +64,7 @@
             inputmode="numeric"
             autocomplete="tel"
             class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="0912345678"
+            placeholder="Nhập số điện thoại"
           />
         </div>
 
@@ -77,7 +76,7 @@
             type="text"
             autocomplete="street-address"
             class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="Tùy chọn"
+            placeholder="Nhập địa chỉ của bạn"
           />
         </div>
 
@@ -140,8 +139,8 @@
 import { onBeforeUnmount, reactive, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+import { parseApiError } from '@/utils/api-error'
+import { validateRegisterForm } from '@/validators/auth.validator'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -161,49 +160,6 @@ const form = reactive({
   confirmPassword: ''
 })
 
-const getErrorMessage = (error, fallback) => {
-  const messageText = error?.response?.data?.message
-  const errors = error?.response?.data?.errors
-
-  if (messageText && messageText !== 'Dữ liệu không hợp lệ') {
-    return messageText
-  }
-
-  if (Array.isArray(errors) && errors.length > 0) {
-    return errors[0]
-  }
-
-  return messageText || fallback
-}
-
-const validateRegister = () => {
-  if (form.username.trim().length < 3) {
-    return 'Tên đăng nhập phải có ít nhất 3 ký tự'
-  }
-
-  if (form.fullName.trim().length < 2) {
-    return 'Họ và tên phải có ít nhất 2 ký tự'
-  }
-
-  if (!emailPattern.test(form.email.trim())) {
-    return 'Email không hợp lệ'
-  }
-
-  if (form.phone && !/^[0-9]{9,15}$/.test(form.phone.trim())) {
-    return 'Số điện thoại không hợp lệ'
-  }
-
-  if (form.password.length < 6) {
-    return 'Mật khẩu phải có ít nhất 6 ký tự'
-  }
-
-  if (form.password !== form.confirmPassword) {
-    return 'Mật khẩu xác nhận không khớp'
-  }
-
-  return ''
-}
-
 const resetForm = () => {
   form.username = ''
   form.fullName = ''
@@ -218,7 +174,7 @@ const handleRegister = async () => {
   message.value = ''
   errorMessage.value = ''
 
-  const validationError = validateRegister()
+  const validationError = validateRegisterForm(form)
   if (validationError) {
     errorMessage.value = validationError
     return
@@ -236,11 +192,11 @@ const handleRegister = async () => {
       password: form.password
     })
 
-    message.value = 'Đăng ký thành công, đang chuyển sang đăng nhập...'
+    message.value = 'Đăng ký thành công, đang chuyển đến trang đăng nhập...'
     resetForm()
     redirectTimer = window.setTimeout(() => router.push('/login'), 1000)
   } catch (error) {
-    errorMessage.value = getErrorMessage(error, 'Đăng ký thất bại')
+    errorMessage.value = parseApiError(error, 'Đăng ký thất bại')
   } finally {
     loading.value = false
   }

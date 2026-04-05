@@ -59,6 +59,7 @@
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { parseApiError } from '@/utils/api-error'
 
 // Khởi tạo store quản lý trạng thái tài khoản
 const authStore = useAuthStore()
@@ -97,7 +98,7 @@ const saveProfile = async () => {
     message.value = 'Cập nhật thành công!'
     setTimeout(() => message.value = '', 3000)
   } catch (err) {
-    errorMsg.value = err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật'
+    errorMsg.value = parseApiError(err, 'Có lỗi xảy ra khi cập nhật')
   }
 }
 
