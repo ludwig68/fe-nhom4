@@ -20,6 +20,9 @@
 
 import axios from 'axios';
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL?.trim() || 'http://localhost:3000';
+
 /**
  * Tạo axios instance với cấu hình mặc định
  * 
@@ -31,7 +34,7 @@ import axios from 'axios';
  * - Content-Type: application/json → backend biết parse body dạng JSON
  */
 const http = axios.create({
-  baseURL: 'http://localhost:3000', // URL backend API
+  baseURL: API_BASE_URL, // URL backend API
   headers: {
     'Content-Type': 'application/json' // Mặc định gửi JSON
   }
