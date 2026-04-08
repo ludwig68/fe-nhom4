@@ -299,7 +299,7 @@
 
 <script setup>
 import { onMounted, reactive, ref, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { bookingService } from '@/services/booking.service'
 import { roomService } from '@/services/room.service'
@@ -307,6 +307,7 @@ import { parseApiError } from '@/utils/api-error'
 
 const authStore = useAuthStore()
 const route = useRoute()
+const router = useRouter()
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
 const loadingRooms = ref(false)
@@ -453,6 +454,19 @@ const submitBooking = async () => {
 
     const bookingData = res.data?.data
     successMessage.value = `Đặt phòng thành công. Mã đơn: ${bookingData?.bookingCode || 'N/A'}`
+
+    if (bookingData?.bookingCode) {
+      localStorage.setItem('latestBookingCode', bookingData.bookingCode)
+    }
+
+    const detailId = bookingData?.bookingCode || bookingData?.bookingId
+    if (detailId) {
+      // Sau 2 giây → chuyển sang trang chi tiết booking vừa tạo
+      setTimeout(() => {
+        router.push({ name: 'booking-detail', params: { id: detailId } })
+      }, 2000)
+    }
+
     await searchAvailableRooms()
   } catch (error) {
     errorMessage.value = parseApiError(error, 'Đặt phòng thất bại')

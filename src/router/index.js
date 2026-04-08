@@ -30,6 +30,9 @@ import BranchDetailView from '@/views/BranchDetailView.vue';
 import RoomSearchView from '@/views/RoomSearchView.vue';
 import RoomDetailView from '@/views/RoomDetailView.vue';
 import BookingView from '@/views/BookingView.vue';
+import BookingListView from '@/views/BookingListView.vue';
+import BookingDetailView from '@/views/BookingDetailView.vue';
+import FeedbackView from '@/views/FeedbackView.vue';
 
 // Import hàm tạo route có guard
 import { createGuardedRoute, resolveAuthRedirect } from './guard';
@@ -129,6 +132,31 @@ const router = createRouter({
       path: '/booking',
       name: 'booking',
       component: BookingView
+    }, 'requiresAuth'),
+
+    // =============================================================
+    // QUẢN LÝ ĐƠN ĐẶT PHÒNG (requiresAuth)
+    // =============================================================
+    createGuardedRoute({
+      path: '/my-bookings',
+      name: 'my-bookings',
+      component: BookingListView
+    }, 'requiresAuth'),
+
+    createGuardedRoute({
+      // :id có thể là bookingId (số) hoặc bookingCode (string)
+      path: '/my-bookings/:id',
+      name: 'booking-detail',
+      component: BookingDetailView
+    }, 'requiresAuth'),
+
+    // =============================================================
+    // ĐÁNH GIÁ / PHẢN HỒI (requiresAuth)
+    // =============================================================
+    createGuardedRoute({
+      path: '/feedbacks',
+      name: 'feedbacks',
+      component: FeedbackView
     }, 'requiresAuth')
   ],
 

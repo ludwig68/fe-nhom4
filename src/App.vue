@@ -18,6 +18,13 @@
             <RouterLink to="/branches" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Chi nhánh</RouterLink>
             <RouterLink to="/rooms" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Phòng</RouterLink>
             <RouterLink to="/booking" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Đặt phòng</RouterLink>
+            <RouterLink
+              v-if="authStore.isAuthenticated"
+              to="/my-bookings"
+              class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900"
+            >
+              Đơn của tôi
+            </RouterLink>
             <a href="#danh-gia" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Đánh giá</a>
           </nav>
 
