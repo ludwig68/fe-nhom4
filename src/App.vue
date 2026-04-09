@@ -3,15 +3,19 @@
     <header class="sticky top-0 z-50 bg-transparent">
       <div class="mx-auto max-w-7xl px-6 py-4 lg:px-8">
         <div class="flex items-center justify-between gap-6 rounded-[28px] border border-stone-300/70 bg-white/65 px-4 py-3 shadow-sm shadow-stone-200/30 backdrop-blur-[3px]">
-          <div class="flex items-center gap-3">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-900 text-sm font-semibold tracking-[0.2em] text-white">
+          <RouterLink
+            to="/"
+            class="group flex items-center gap-3 rounded-2xl px-1 py-1 transition hover:bg-stone-100/70"
+            aria-label="Về trang chủ"
+          >
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-900 text-sm font-semibold tracking-[0.2em] text-white transition group-hover:bg-stone-700">
               HL
             </div>
             <div>
               <p class="text-lg font-semibold tracking-[0.08em] text-stone-900">HOTEL LUXE</p>
               <p class="text-xs text-stone-500">Hệ thống đặt phòng khách sạn</p>
             </div>
-          </div>
+          </RouterLink>
 
           <nav class="hidden items-center gap-2 rounded-full bg-white/60 px-2 py-2 text-sm text-stone-600 ring-1 ring-stone-200/80 lg:flex">
             <a href="#gioi-thieu" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Giới thiệu</a>
@@ -254,31 +258,34 @@
       </div>
 
       <div class="grid gap-6 lg:grid-cols-3">
-        <article v-for="room in rooms" :key="room.name" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
+        <article v-for="room in rooms.slice(0, 3)" :key="room.room_id" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
           <div class="h-56 bg-[linear-gradient(135deg,#fafaf9,#e7e5e4,#f5f5f4)]"></div>
           <div class="p-6">
             <div class="flex items-start justify-between gap-4">
               <div>
-                <h3 class="text-xl font-semibold text-stone-900">{{ room.name }}</h3>
-                <p class="mt-2 text-sm text-stone-500">{{ room.branch }}</p>
+                <h3 class="text-xl font-semibold text-stone-900">{{ room.room_name }}</h3>
+                <p class="mt-2 text-sm text-stone-500">{{ room.branch_name }}</p>
               </div>
               <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
-                {{ room.status }}
+                {{ getRoomStatusText(room.status) }}
               </span>
             </div>
 
             <div class="mt-4 flex flex-wrap gap-2 text-xs">
-              <span v-for="tag in room.tags" :key="tag" class="rounded-full bg-stone-100 px-3 py-2 text-stone-700">
-                {{ tag }}
+              <span v-if="room.type_name" class="rounded-full bg-stone-100 px-3 py-2 text-stone-700">
+                {{ room.type_name }}
+              </span>
+              <span v-if="room.capacity" class="rounded-full bg-stone-100 px-3 py-2 text-stone-700">
+                {{ room.capacity }} người
               </span>
             </div>
 
             <div class="mt-5 flex items-end justify-between">
               <div>
                 <p class="text-sm text-stone-500">Giá / đêm</p>
-                <p class="text-2xl font-semibold text-stone-900">{{ room.price }}</p>
+                <p class="text-2xl font-semibold text-stone-900">{{ formatCurrency(room.price_per_night) }}</p>
               </div>
-              <RouterLink to="/rooms" class="inline-flex items-center justify-center rounded-2xl border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-100">
+              <RouterLink :to="'/rooms/' + room.room_id" class="inline-flex items-center justify-center rounded-2xl border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-100">
                 Chi tiết phòng
               </RouterLink>
             </div>
@@ -373,7 +380,7 @@
           <div class="mb-4 flex items-center gap-1 text-amber-500">
             <span v-for="n in 5" :key="n">★</span>
           </div>
-          <p class="text-sm leading-7 text-stone-600">“{{ review.content }}”</p>
+          <p class="text-sm leading-7 text-stone-600">"{{ review.content }}"</p>
           <div class="mt-6 flex items-center justify-between">
             <div>
               <p class="font-semibold text-stone-900">{{ review.name }}</p>
@@ -469,21 +476,43 @@ import { ref, computed, onMounted } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { branchService } from '@/services/branch.service'
+import { roomService } from '@/services/room.service'
 
-// Khởi tạo các hook của vue-router để lấy thông tin đường dẫn và điều hướng
 const route = useRoute()
 const router = useRouter()
-// Khởi tạo store quản lý tài khoản để dùng cho hiển thị đăng nhập/đăng xuất
 const authStore = useAuthStore()
-// Biến lưu danh sách chi nhánh lấy từ API
-const branches = ref([])
 
-// Biến logic kiểm tra xem có đang ở trang chủ không (Tên route là 'home')
+const branches = ref([])
+const rooms = ref([])
+
 const isHomeRoute = computed(() => route.name === 'home')
 
-// Hook chạy ngay khi giao diện (App.vue) được gắn vào màn hình
+const formatCurrency = (amount) => {
+  if (!amount && amount !== 0) return 'Liên hệ'
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(amount).replace('₫', 'đ')
+}
+
+const getRoomStatusText = (status) => {
+  const statusMap = {
+    'Available': 'Còn trống',
+    'Maintenance': 'Đang bảo trì',
+    'Booked': 'Đã đặt',
+    'Occupied': 'Đang sử dụng'
+  }
+  return statusMap[status] || status || 'Không rõ'
+}
+
+const getRoomStatusClass = (status) => {
+  if (status === 'Available') return 'Còn trống'
+  return 'Tạm hết'
+}
+
 onMounted(async () => {
-  // 1. Kiểm tra nếu có token trong máy nhưng dữ liệu user trống thì gọi API lấy user
   if (authStore.isAuthenticated && !authStore.user) {
     try {
       await authStore.fetchMe()
@@ -491,26 +520,26 @@ onMounted(async () => {
       console.error(error)
     }
   }
-  
-  // 2. Gọi API lấy danh sách chi nhánh khách sạn để hiển thị ở trang chủ
+
   try {
-    const res = await branchService.getAllBranches()
-    branches.value = res.data?.data || []
+    const [branchesRes, roomsRes] = await Promise.all([
+      branchService.getAllBranches(),
+      roomService.getAllRooms()
+    ])
+    branches.value = branchesRes.data?.data || []
+    rooms.value = roomsRes.data?.data || []
   } catch (err) {
-    console.error('Lỗi tải chi nhánh', err)
+    console.error('Lỗi tải dữ liệu:', err)
   }
 })
 
-// Hàm xử lý khi người dùng bấm nút Đăng xuất
 const handleLogout = async () => {
-  await authStore.logout() // Xoá token và user
-  // Nếu đang ở trang phụ thì đẩy về lại trang chủ
+  await authStore.logout()
   if (route.name !== 'home') {
     router.push('/')
   }
 }
 
-// Khai báo mảng dữ liệu tĩnh (hardcode) dùng cho phần hiển thị giao diện mẫu
 const featureGroups = [
   {
     icon: '👤',
@@ -555,32 +584,6 @@ const featureGroups = [
       'Xác nhận và lưu lịch sử đặt phòng',
       'Xem chi tiết đơn, hủy đơn, theo dõi trạng thái, gửi đánh giá'
     ]
-  }
-]
-
-
-
-const rooms = [
-  {
-    name: 'Deluxe Ocean View',
-    branch: 'Chi nhánh Đà Nẵng',
-    status: 'Còn trống',
-    price: '1.450.000đ',
-    tags: ['2 người', 'View đẹp', 'Ăn sáng', 'Ban công']
-  },
-  {
-    name: 'Family Premium',
-    branch: 'Chi nhánh Sài Gòn',
-    status: 'Sẵn sàng đặt',
-    price: '2.100.000đ',
-    tags: ['4 người', 'Rộng rãi', 'Phù hợp gia đình', 'Bồn tắm']
-  },
-  {
-    name: 'Suite Signature',
-    branch: 'Chi nhánh Hà Nội',
-    status: 'Còn 1 phòng',
-    price: '3.800.000đ',
-    tags: ['Không gian riêng', 'Sang trọng', 'Dịch vụ tốt', 'Yên tĩnh']
   }
 ]
 

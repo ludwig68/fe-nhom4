@@ -210,7 +210,7 @@
           <!-- User: Đánh giá (nếu đã check-out) -->
           <RouterLink
             v-if="canReview"
-            :to="`/feedbacks/new?bookingId=${booking.bookingId}`"
+            :to="`/feedbacks?bookingId=${booking.bookingId}`"
             class="rounded-xl bg-amber-500 px-5 py-3 text-sm font-medium text-white hover:bg-amber-600"
           >
             ★ Đánh giá
@@ -231,13 +231,12 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { RouterLink, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { bookingService } from '@/services/booking.service';
 import { parseApiError } from '@/utils/api-error';
 
 const route = useRoute();
-const router = useRouter();
 const authStore = useAuthStore();
 
 const loading = ref(true);

@@ -2,7 +2,7 @@
   =============================================================
   FILE: frontend/src/views/FeedbackView.vue
   MÔ TẢ: Trang gửi đánh giá + xem danh sách đánh giá
-  ROUTE: /feedbacks (requiresAuth), /feedbacks/new?bookingId=X
+  ROUTE: /feedbacks (requiresAuth), /feedbacks?bookingId=X
   
   CHỨC NĂNG:
   - Tab 1: Gửi đánh giá mới (chọn booking đã check-out chưa đánh giá)
@@ -325,18 +325,19 @@ const handleDeleteFeedback = async (feedbackId) => {
 };
 
 onMounted(() => {
-  loadEligible();
-  loadHistory();
-
-  // Nếu có bookingId trong query → auto select
+  // Nếu có bookingId trong query -> load danh sách trước rồi auto select
   const bookingId = Number(route.query.bookingId);
   if (bookingId) {
     const loadAndSelect = async () => {
-      await loadEligible();
+      await Promise.all([loadEligible(), loadHistory()]);
       const bk = eligibleBookings.value.find((b) => b.bookingId === bookingId);
       if (bk) selectBooking(bk);
     };
     loadAndSelect();
+    return;
   }
+
+  loadEligible();
+  loadHistory();
 });
 </script>

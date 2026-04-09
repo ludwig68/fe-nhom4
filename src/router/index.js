@@ -155,6 +155,7 @@ const router = createRouter({
     // =============================================================
     createGuardedRoute({
       path: '/feedbacks',
+      alias: '/feedbacks/new',
       name: 'feedbacks',
       component: FeedbackView
     }, 'requiresAuth')

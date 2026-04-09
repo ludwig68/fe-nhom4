@@ -157,9 +157,11 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import { bookingService } from '@/services/booking.service';
 import { parseApiError } from '@/utils/api-error';
 
+const authStore = useAuthStore();
 const loading = ref(true);
 const bookings = ref([]);
 const selectedStatus = ref('');
@@ -187,9 +189,14 @@ const statusOptions = [
 
 /**
  * Kiểm tra booking có thể hủy không
- * USER chỉ hủy được đơn 'chờ xác nhận'
+ * - USER: chỉ hủy được đơn 'chờ xác nhận'
+ * - STAFF/ADMIN: hủy được đơn 'chờ xác nhận' và 'đã xác nhận'
  */
 const canCancel = (status) => {
+  const role = authStore.user?.role_name;
+  if (role === 'ADMIN' || role === 'STAFF') {
+    return status === 'chờ xác nhận' || status === 'đã xác nhận';
+  }
   return status === 'chờ xác nhận';
 };
 
@@ -285,6 +292,10 @@ const handleCancel = async (bookingId, bookingCode) => {
 };
 
 onMounted(() => {
-  fetchBookings();
+  if (authStore.isAuthenticated && !authStore.user) {
+    authStore.fetchMe().finally(() => fetchBookings());
+  } else {
+    fetchBookings();
+  }
 });
 </script>
