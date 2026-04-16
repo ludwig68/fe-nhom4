@@ -9,6 +9,15 @@ import http from './http';
 
 export const feedbackService = {
   /**
+   * GET /api/feedbacks/public
+   * Lấy danh sách đánh giá public cho trang chủ
+   * @param {object} params - { limit? }
+   */
+  getPublicFeedbacks(params = {}) {
+    return http.get('/api/feedbacks/public', { params });
+  },
+
+  /**
    * POST /api/feedbacks
    * Gửi đánh giá
    * @param {object} payload - { bookingId, rating (1-5), comment? }

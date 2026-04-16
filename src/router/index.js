@@ -37,6 +37,15 @@ import FeedbackView from '@/views/FeedbackView.vue';
 // Import hàm tạo route có guard
 import { createGuardedRoute, resolveAuthRedirect } from './guard';
 
+const HOME_SECTION_HASHES = new Set([
+  '#gioi-thieu',
+  '#chi-nhanh',
+  '#phong',
+  '#dat-phong',
+  '#danh-gia',
+  '#lien-he'
+]);
+
 /**
  * Khởi tạo router instance
  * 
@@ -163,7 +172,18 @@ const router = createRouter({
 
   // Mỗi khi chuyển trang → scroll lên đầu trang
   // Tạo trải nghiệm giống load trang mới
-  scrollBehavior() {
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth'
+      };
+    }
+
     return { top: 0 };
   }
 });
@@ -189,6 +209,13 @@ const router = createRouter({
  * - Trả về false → hủy navigation
  */
 router.beforeEach((to) => {
+  if (to.name !== 'home' && HOME_SECTION_HASHES.has(to.hash)) {
+    return {
+      name: 'home',
+      hash: to.hash
+    };
+  }
+
   // Lấy token từ localStorage
   const token = localStorage.getItem('accessToken');
 

@@ -18,7 +18,7 @@
           </RouterLink>
 
           <nav class="hidden items-center gap-2 rounded-full bg-white/60 px-2 py-2 text-sm text-stone-600 ring-1 ring-stone-200/80 lg:flex">
-            <a href="#gioi-thieu" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Giới thiệu</a>
+            <RouterLink :to="{ name: 'home', hash: '#gioi-thieu' }" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Giới thiệu</RouterLink>
             <RouterLink to="/branches" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Chi nhánh</RouterLink>
             <RouterLink to="/rooms" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Phòng</RouterLink>
             <RouterLink to="/booking" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Đặt phòng</RouterLink>
@@ -29,13 +29,16 @@
             >
               Đơn của tôi
             </RouterLink>
-            <a href="#danh-gia" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Đánh giá</a>
+            <RouterLink :to="{ name: 'home', hash: '#danh-gia' }" class="rounded-full px-4 py-2 transition hover:bg-white hover:text-stone-900">Đánh giá</RouterLink>
           </nav>
 
           <div class="hidden items-center gap-3 lg:flex">
-            <a href="#lien-he" class="rounded-full px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900">
+            <RouterLink
+              :to="{ name: 'home', hash: '#lien-he' }"
+              class="rounded-full px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900"
+            >
               Liên hệ
-            </a>
+            </RouterLink>
 
             <template v-if="authStore.isAuthenticated">
               <RouterLink
@@ -376,19 +379,30 @@
       </div>
 
       <div class="grid gap-6 lg:grid-cols-3">
-        <article v-for="review in reviews" :key="review.name" class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-stone-200">
-          <div class="mb-4 flex items-center gap-1 text-amber-500">
-            <span v-for="n in 5" :key="n">★</span>
+        <div v-if="loadingReviews" class="rounded-[28px] bg-white px-6 py-8 text-center text-sm text-stone-500 shadow-sm ring-1 ring-stone-200 lg:col-span-3">
+          Đang tải đánh giá từ khách hàng...
+        </div>
+        <p v-else-if="reviewsError" class="rounded-[28px] bg-rose-50 px-6 py-4 text-sm text-rose-600 ring-1 ring-rose-200 lg:col-span-3">
+          {{ reviewsError }}
+        </p>
+        <div v-else-if="reviews.length === 0" class="rounded-[28px] bg-white px-6 py-8 text-center text-sm text-stone-500 shadow-sm ring-1 ring-stone-200 lg:col-span-3">
+          Chưa có đánh giá nào từ khách hàng.
+        </div>
+        <template v-else>
+          <article v-for="review in reviews" :key="review.feedbackId" class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+          <div class="mb-4 text-lg text-amber-500">
+            {{ '\u2605'.repeat(review.rating) }}{{ '\u2606'.repeat(5 - review.rating) }}
           </div>
           <p class="text-sm leading-7 text-stone-600">"{{ review.content }}"</p>
-          <div class="mt-6 flex items-center justify-between">
+          <div class="mt-6 flex items-center justify-between gap-4">
             <div>
               <p class="font-semibold text-stone-900">{{ review.name }}</p>
-              <p class="text-sm text-stone-500">{{ review.room }}</p>
+              <p class="text-sm text-stone-500">{{ review.room || 'Khách đã lưu trú' }}</p>
             </div>
             <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">{{ review.score }}/5</span>
           </div>
         </article>
+        </template>
       </div>
     </section>
 
@@ -476,6 +490,7 @@ import { ref, computed, onMounted } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { branchService } from '@/services/branch.service'
+import { feedbackService } from '@/services/feedback.service'
 import { roomService } from '@/services/room.service'
 
 const route = useRoute()
@@ -484,6 +499,9 @@ const authStore = useAuthStore()
 
 const branches = ref([])
 const rooms = ref([])
+const reviews = ref([])
+const loadingReviews = ref(true)
+const reviewsError = ref('')
 
 const isHomeRoute = computed(() => route.name === 'home')
 
@@ -512,6 +530,29 @@ const getRoomStatusClass = (status) => {
   return 'Tạm hết'
 }
 
+const buildReviewRoomLabel = (review) => {
+  const roomParts = [
+    review.roomType || '',
+    review.roomNumber ? `Phòng ${review.roomNumber}` : '',
+    review.branchName || ''
+  ].filter(Boolean)
+
+  return roomParts.join(' · ')
+}
+
+const mapHomeReview = (review) => {
+  const rating = Math.min(Math.max(Number(review?.rating || 0), 0), 5)
+
+  return {
+    feedbackId: review?.feedbackId || `${review?.bookingCode || 'feedback'}-${rating}`,
+    name: review?.customerName || 'Khách hàng',
+    room: buildReviewRoomLabel(review),
+    rating,
+    score: rating.toFixed(1),
+    content: review?.comment?.trim() || `Khách hàng đã chấm ${rating.toFixed(1)}/5 sau khi lưu trú.`
+  }
+}
+
 onMounted(async () => {
   if (authStore.isAuthenticated && !authStore.user) {
     try {
@@ -521,16 +562,35 @@ onMounted(async () => {
     }
   }
 
-  try {
-    const [branchesRes, roomsRes] = await Promise.all([
-      branchService.getAllBranches(),
-      roomService.getAllRooms()
-    ])
-    branches.value = branchesRes.data?.data || []
-    rooms.value = roomsRes.data?.data || []
-  } catch (err) {
-    console.error('Lỗi tải dữ liệu:', err)
+  const [branchesResult, roomsResult, reviewsResult] = await Promise.allSettled([
+    branchService.getAllBranches(),
+    roomService.getAllRooms(),
+    feedbackService.getPublicFeedbacks({ limit: 6 })
+  ])
+
+  if (branchesResult.status === 'fulfilled') {
+    branches.value = branchesResult.value.data?.data || []
+  } else {
+    console.error('Lỗi tải chi nhánh:', branchesResult.reason)
   }
+
+  if (roomsResult.status === 'fulfilled') {
+    rooms.value = roomsResult.value.data?.data || []
+  } else {
+    console.error('Lỗi tải phòng:', roomsResult.reason)
+  }
+
+  if (reviewsResult.status === 'fulfilled') {
+    const reviewRows = reviewsResult.value.data?.data || []
+    reviews.value = reviewRows.map(mapHomeReview)
+    reviewsError.value = ''
+  } else {
+    reviews.value = []
+    reviewsError.value = 'Không thể tải đánh giá từ hệ thống.'
+    console.error('Lỗi tải đánh giá:', reviewsResult.reason)
+  }
+
+  loadingReviews.value = false
 })
 
 const handleLogout = async () => {
@@ -606,26 +666,6 @@ const bookingSteps = [
   }
 ]
 
-const reviews = [
-  {
-    name: 'Nguyễn Minh Anh',
-    room: 'Deluxe Ocean View',
-    score: '5.0',
-    content: 'Mọi thứ hiển thị rõ ràng, dễ thao tác và cảm giác rất dễ chịu khi sử dụng.'
-  },
-  {
-    name: 'Trần Khánh Vy',
-    room: 'Family Premium',
-    score: '4.9',
-    content: 'Phần đặt phòng và theo dõi đơn đặt phòng rất gọn, không bị rối và nhìn khá sang.'
-  },
-  {
-    name: 'Phạm Đức Long',
-    room: 'Suite Signature',
-    score: '5.0',
-    content: 'Giao diện nhẹ nhàng, trang trọng và phù hợp với một website khách sạn thực tế.'
-  }
-]
 </script>
 
 <style scoped>
