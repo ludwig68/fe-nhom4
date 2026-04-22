@@ -18,6 +18,21 @@
     <div v-else-if="room" class="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <!-- Cột Trái: Thông tin chính -->
       <div class="lg:col-span-2 space-y-6">
+        <!-- Bộ ảnh phòng -->
+        <div v-if="room.images?.length" class="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm ring-1 ring-stone-900/5">
+          <div class="h-80 w-full md:h-[400px]">
+            <img :src="room.images[0].imageUrl" :alt="`Phòng ${room.roomNumber}`" class="h-full w-full object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div v-if="room.images.length > 1" class="grid grid-cols-4 gap-2 bg-stone-50 p-2">
+            <div v-for="(img, idx) in room.images.slice(1, 5)" :key="img.imageId" class="relative h-24 w-full overflow-hidden rounded-md">
+              <img :src="img.imageUrl" :alt="`Khung cảnh ${idx}`" class="h-full w-full object-cover transition duration-300 hover:scale-110 cursor-pointer">
+              <div v-if="idx === 3 && room.images.length > 5" class="absolute inset-0 flex items-center justify-center bg-stone-900/50 text-font-bold text-white cursor-pointer">
+                +{{ room.images.length - 5 }}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
           <div class="mb-4 flex items-start justify-between">
             <div>
