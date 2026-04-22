@@ -1,420 +1,151 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-white px-4 py-10">
-    <div class="mx-auto max-w-7xl">
-      <!-- Breadcrumb -->
-      <div class="mb-6 flex items-center justify-between">
-        <RouterLink to="/" class="group inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-sm ring-1 ring-stone-200 transition hover:bg-stone-900 hover:text-white hover:ring-stone-900">
-          <span class="transition group-hover:-translate-x-0.5">←</span>
-          Về trang chủ
-        </RouterLink>
-        <RouterLink to="/rooms" class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-sm ring-1 ring-stone-200 transition hover:bg-stone-900 hover:text-white hover:ring-stone-900">
-          Xem chi tiết phòng
-          <span class="transition group-hover:translate-x-0.5">→</span>
-        </RouterLink>
+  <div class="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-stone-800">Đặt phòng</h1>
+      <div class="flex gap-4">
+        <RouterLink to="/" class="text-sm font-medium text-stone-500 hover:text-stone-900">Về trang chủ</RouterLink>
+        <RouterLink to="/rooms" class="text-sm font-medium text-stone-500 hover:text-stone-900">Xem danh sách phòng</RouterLink>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      
+      <!-- CỘT TRÁI: Tìm kiếm & Chọn phòng -->
+      <div class="lg:col-span-4 space-y-6">
+        
+        <!-- Bước 1 -->
+        <div class="rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
+          <h2 class="mb-4 text-lg font-semibold text-stone-800">Bước 1: Tìm phòng trống</h2>
+          <form @submit.prevent="searchAvailableRooms" class="space-y-4">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-stone-700">Ngày nhận phòng:</label>
+              <input v-model="searchForm.checkIn" type="date" required class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" />
+            </div>
+
+            <div>
+              <label class="mb-1 block text-sm font-medium text-stone-700">Ngày trả phòng:</label>
+              <input v-model="searchForm.checkOut" type="date" required class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" />
+            </div>
+
+            <div>
+              <label class="mb-1 block text-sm font-medium text-stone-700">Chi nhánh:</label>
+              <select v-model="searchForm.branchId" class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500">
+                <option value="">Tất cả chi nhánh</option>
+                <option v-for="branch in meta.branches" :key="branch.branchId" :value="String(branch.branchId)">
+                  {{ branch.branchName }}
+                </option>
+              </select>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+              <button type="submit" :disabled="loadingRooms" class="w-full rounded-md bg-stone-800 py-2 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:opacity-50">
+                {{ loadingRooms ? 'Đang tìm...' : 'Xem phòng trống' }}
+              </button>
+              <button type="button" @click="resetSearch" class="whitespace-nowrap rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-50">
+                Làm mới
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Bước 2 -->
+        <div class="rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
+          <h2 class="mb-4 text-lg font-semibold text-stone-800">Bước 2: Danh sách kết quả</h2>
+          
+          <div v-if="errorMessage" class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+            {{ errorMessage }}
+          </div>
+          
+          <div v-if="availableRooms.length === 0" class="rounded-md border border-stone-100 bg-stone-50 p-4 text-center text-sm text-stone-500">
+            Hãy chọn ngày và bấm "Xem phòng trống"
+          </div>
+          
+          <div v-else class="max-h-[400px] space-y-3 overflow-y-auto pr-2">
+            <label v-for="room in availableRooms" :key="room.roomId" class="block cursor-pointer rounded-md border border-stone-200 p-3 hover:bg-stone-50 has-[:checked]:border-stone-500 has-[:checked]:bg-stone-50">
+              <div class="flex items-start gap-3">
+                <input 
+                  type="radio" 
+                  :value="String(room.roomId)" 
+                  v-model="selectedRoomId" 
+                  @change="quote = null; successMessage = ''"
+                  class="mt-1 border-stone-300 text-stone-800 focus:ring-stone-500"
+                />
+                <div>
+                  <div class="font-medium text-stone-900">Phòng {{ room.roomNumber }} ({{ room.roomType }})</div>
+                  <div class="text-sm text-stone-500">{{ room.branchName }}</div>
+                  <div class="mt-1 font-semibold text-stone-800">{{ formatPrice(room.pricePerNight) }} / đêm</div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Progress Steps -->
-      <div class="mb-8 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-200">
-        <div class="flex items-center justify-between">
-          <div class="flex flex-1 items-center">
-            <div :class="['flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300', availableRooms.length > 0 ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-600']">1</div>
-            <span class="ml-2 hidden text-sm font-medium text-stone-700 sm:inline">Tìm phòng</span>
-          </div>
-          <div class="mx-2 h-px flex-1 bg-stone-200"></div>
-          <div class="flex flex-1 items-center">
-            <div :class="['flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300', selectedRoomId ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-600']">2</div>
-            <span class="ml-2 hidden text-sm font-medium text-stone-700 sm:inline">Chọn phòng</span>
-          </div>
-          <div class="mx-2 h-px flex-1 bg-stone-200"></div>
-          <div class="flex flex-1 items-center">
-            <div :class="['flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300', quote ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-600']">3</div>
-            <span class="ml-2 hidden text-sm font-medium text-stone-700 sm:inline">Xác nhận</span>
-          </div>
+      <!-- CỘT PHẢI: Điền thông tin -->
+      <div class="lg:col-span-8">
+        <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <h2 class="mb-6 text-xl font-bold text-stone-800">Bước 3: Thông tin đặt phòng</h2>
+          
+          <form @submit.prevent="submitBooking" class="space-y-6">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-sm font-medium text-stone-700">Họ và tên:</label>
+                <input v-model.trim="bookingForm.customerName" type="text" class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" />
+              </div>
+
+              <div>
+                <label class="mb-1 block text-sm font-medium text-stone-700">Số điện thoại:</label>
+                <input v-model.trim="bookingForm.customerPhone" type="tel" class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="mb-1 block text-sm font-medium text-stone-700">Email:</label>
+                <input v-model.trim="bookingForm.customerEmail" type="email" class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="mb-1 block text-sm font-medium text-stone-700">Ghi chú:</label>
+                <textarea v-model.trim="bookingForm.note" rows="3" class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500"></textarea>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="mb-3 text-sm font-semibold text-stone-800 uppercase tracking-wide">Dịch vụ đi kèm</h3>
+              <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 border border-stone-200 rounded-md p-4 bg-stone-50">
+                <label v-for="service in services" :key="service.serviceId" class="flex items-center gap-2 text-sm text-stone-700">
+                  <input v-model="bookingForm.serviceIds" type="checkbox" :value="service.serviceId" class="rounded border-stone-300 text-stone-800 focus:ring-stone-500" />
+                  <span>{{ service.serviceName }}</span>
+                  <span class="ml-auto font-medium">{{ formatPrice(service.unitPrice) }}</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="border-t border-stone-200 pt-6">
+              <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <button type="button" @click="calculateQuote" :disabled="loadingQuote || !selectedRoomId" class="w-full sm:w-auto rounded-md border border-stone-300 bg-white px-6 py-2.5 text-sm font-semibold text-stone-700 transition hover:bg-stone-50 disabled:opacity-50">
+                  {{ loadingQuote ? 'Đang tính...' : 'Tính tổng tiền' }}
+                </button>
+
+                <div v-if="quote" class="w-full sm:w-auto text-right text-sm">
+                  <p class="text-stone-600">Tiền phòng: <span class="font-medium text-stone-900">{{ formatPrice(quote.price.roomCost) }}</span></p>
+                  <p class="text-stone-600">Phí dịch vụ: <span class="font-medium text-stone-900">{{ formatPrice(quote.price.servicesCost) }}</span></p>
+                  <p class="mt-1 text-lg font-bold text-stone-900">Tổng cộng: {{ formatPrice(quote.price.totalCost) }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="successMessage" class="rounded-md bg-emerald-50 p-4 text-sm text-emerald-700 border border-emerald-200 bg-opacity-70">
+              {{ successMessage }}
+            </div>
+
+            <button type="submit" :disabled="submitting || !quote" class="w-full rounded-md bg-stone-900 py-3.5 text-base font-semibold text-white transition hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ submitting ? 'Đang gửi yêu cầu...' : 'Xác nhận đặt phòng' }}
+            </button>
+          </form>
         </div>
       </div>
 
-      <div class="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
-        <!-- Left Panel: Search & Rooms -->
-        <section class="space-y-6">
-          <!-- Search Card -->
-          <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-            <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-5">
-              <div class="flex items-center gap-3">
-                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-lg text-white">🔍</div>
-                <div>
-                  <h1 class="text-xl font-semibold text-stone-900">Đặt phòng</h1>
-                  <p class="text-sm text-stone-500">Tìm phòng trống theo ngày, chọn phòng phù hợp, thêm dịch vụ và xác nhận đặt phòng.</p>
-                </div>
-              </div>
-            </div>
-
-            <form class="p-6" @submit.prevent="searchAvailableRooms">
-              <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <!-- Ngày nhận -->
-                <div class="group">
-                  <label class="mb-2 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                    <span class="text-base">📅</span> Ngày nhận phòng
-                  </label>
-                  <input
-                    v-model="searchForm.checkIn"
-                    type="date"
-                    class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                  />
-                </div>
-
-                <!-- Ngày trả -->
-                <div class="group">
-                  <label class="mb-2 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                    <span class="text-base">📅</span> Ngày trả phòng
-                  </label>
-                  <input
-                    v-model="searchForm.checkOut"
-                    type="date"
-                    class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                  />
-                </div>
-
-                <!-- Chi nhánh -->
-                <div>
-                  <label class="mb-2 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                    <span class="text-base">🏢</span> Chi nhánh
-                  </label>
-                  <select
-                    v-model="searchForm.branchId"
-                    class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                  >
-                    <option value="">Tất cả</option>
-                    <option v-for="branch in meta.branches" :key="branch.branchId" :value="String(branch.branchId)">
-                      {{ branch.branchName }}
-                    </option>
-                  </select>
-                </div>
-
-                <!-- Loại phòng -->
-                <div>
-                  <label class="mb-2 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                    <span class="text-base">🛏️</span> Loại phòng
-                  </label>
-                  <select
-                    v-model="searchForm.typeId"
-                    class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                  >
-                    <option value="">Tất cả</option>
-                    <option v-for="type in meta.roomTypes" :key="type.typeId" :value="String(type.typeId)">
-                      {{ type.typeName }}
-                    </option>
-                  </select>
-                </div>
-
-                <!-- Sức chứa -->
-                <div>
-                  <label class="mb-2 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                    <span class="text-base">👥</span> Sức chứa
-                  </label>
-                  <input
-                    v-model="searchForm.capacity"
-                    type="number"
-                    min="1"
-                    placeholder="Ví dụ: 2"
-                    class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                  />
-                </div>
-
-                <!-- Giá từ -->
-                <div>
-                  <label class="mb-2 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                    <span class="text-base">💰</span> Giá từ
-                  </label>
-                  <input
-                    v-model="searchForm.minPrice"
-                    type="number"
-                    min="0"
-                    class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                  />
-                </div>
-
-                <!-- Đến giá -->
-                <div>
-                  <label class="mb-2 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                    <span class="text-base">💰</span> Đến giá
-                  </label>
-                  <input
-                    v-model="searchForm.maxPrice"
-                    type="number"
-                    min="0"
-                    class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                  />
-                </div>
-
-                <!-- Buttons -->
-                <div class="flex items-end gap-2">
-                  <button
-                    type="submit"
-                    :disabled="loadingRooms"
-                    class="w-full rounded-xl bg-stone-900 px-4 py-3 text-sm font-medium text-white shadow-md shadow-stone-300/50 transition hover:bg-stone-700 hover:shadow-lg disabled:opacity-60"
-                  >
-                    {{ loadingRooms ? '⏳ Đang tìm...' : '🔍 Xem phòng trống' }}
-                  </button>
-                  <button
-                    type="button"
-                    @click="resetSearch"
-                    class="rounded-xl border border-stone-300 px-4 py-3 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
-                  >
-                    Reset
-                  </button>
-                </div>
-
-                <!-- Tiện nghi -->
-                <div class="sm:col-span-2 lg:col-span-4">
-                  <label class="mb-2 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                    <span class="text-base">✨</span> Tiện nghi mong muốn
-                  </label>
-                  <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    <label
-                      v-for="amenity in meta.amenities"
-                      :key="amenity.amenityId"
-                      class="flex cursor-pointer items-center gap-2.5 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm text-stone-700 transition hover:border-stone-400 hover:bg-white"
-                    >
-                      <input
-                        v-model="searchForm.amenityIds"
-                        type="checkbox"
-                        :value="String(amenity.amenityId)"
-                        class="h-4 w-4 rounded accent-stone-900"
-                      />
-                      <span>{{ amenity.amenityName }}</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-
-          <!-- Error -->
-          <p v-if="errorMessage" class="flex items-center gap-2 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600 ring-1 ring-rose-200">
-            <span class="text-base">⚠️</span> {{ errorMessage }}
-          </p>
-
-          <!-- Available Rooms -->
-          <div>
-            <div class="mb-4 flex items-center justify-between">
-              <h2 class="flex items-center gap-2 text-lg font-semibold text-stone-900">
-                <span class="text-xl">🏨</span> Phòng trống
-              </h2>
-              <span class="rounded-full bg-stone-100 px-3 py-1 text-sm font-medium text-stone-600">{{ availableRooms.length }} phòng</span>
-            </div>
-
-            <div v-if="availableRooms.length === 0" class="rounded-2xl border-2 border-dashed border-stone-200 px-6 py-12 text-center">
-              <div class="text-4xl">🏠</div>
-              <p class="mt-3 text-sm font-medium text-stone-500">Chưa có kết quả</p>
-              <p class="mt-1 text-xs text-stone-400">Hãy chọn ngày và bấm "Xem phòng trống".</p>
-            </div>
-
-            <div v-else class="grid gap-4 lg:grid-cols-2">
-              <article
-                v-for="room in availableRooms"
-                :key="room.roomId"
-                @click="selectRoom(room)"
-                :class="[
-                  'group cursor-pointer rounded-2xl border-2 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md',
-                  selectedRoomId === String(room.roomId)
-                    ? 'border-stone-900 bg-stone-50 shadow-md ring-1 ring-stone-900/10'
-                    : 'border-stone-200 bg-white hover:border-stone-400'
-                ]"
-              >
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <h3 class="font-semibold text-stone-900">Phòng {{ room.roomNumber }}</h3>
-                      <span v-if="selectedRoomId === String(room.roomId)" class="flex h-5 w-5 items-center justify-center rounded-full bg-stone-900 text-xs text-white">✓</span>
-                    </div>
-                    <p class="mt-1 text-sm text-stone-500">{{ room.branchName }}</p>
-                  </div>
-                  <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
-                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                    {{ room.status }}
-                  </span>
-                </div>
-
-                <p class="mt-3 text-sm text-stone-600">{{ room.roomType }} · {{ room.capacity }} người</p>
-                <p class="mt-1 text-xl font-bold text-stone-900">{{ formatPrice(room.pricePerNight) }}<span class="text-sm font-normal text-stone-400">/đêm</span></p>
-
-                <div class="mt-3 flex flex-wrap gap-1.5">
-                  <span
-                    v-for="amenity in (room.amenities || []).slice(0, 4)"
-                    :key="amenity.amenityId"
-                    class="rounded-lg bg-stone-100 px-2 py-1 text-xs text-stone-600"
-                  >
-                    {{ amenity.amenityName }}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  @click.stop="selectRoom(room)"
-                  :class="[
-                    'mt-4 w-full rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
-                    selectedRoomId === String(room.roomId)
-                      ? 'bg-stone-900 text-white'
-                      : 'border border-stone-300 text-stone-700 hover:bg-stone-900 hover:text-white'
-                  ]"
-                >
-                  {{ selectedRoomId === String(room.roomId) ? '✓ Đã chọn phòng này' : 'Chọn phòng này' }}
-                </button>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <!-- Right Panel: Booking Form -->
-        <section class="space-y-6">
-          <!-- Customer Info -->
-          <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-            <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-5">
-              <div class="flex items-center gap-3">
-                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-lg text-white">👤</div>
-                <h2 class="text-lg font-semibold text-stone-900">Thông tin người đặt</h2>
-              </div>
-            </div>
-
-            <div class="space-y-4 p-6">
-              <div>
-                <label class="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                  <span>👤</span> Họ và tên
-                </label>
-                <input
-                  v-model.trim="bookingForm.customerName"
-                  type="text"
-                  class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                />
-              </div>
-              <div>
-                <label class="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                  <span>📞</span> Số điện thoại
-                </label>
-                <input
-                  v-model.trim="bookingForm.customerPhone"
-                  type="tel"
-                  class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                />
-              </div>
-              <div>
-                <label class="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                  <span>✉️</span> Email
-                </label>
-                <input
-                  v-model.trim="bookingForm.customerEmail"
-                  type="email"
-                  class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                />
-              </div>
-              <div>
-                <label class="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-stone-600">
-                  <span>📝</span> Ghi chú
-                </label>
-                <textarea
-                  v-model.trim="bookingForm.note"
-                  rows="3"
-                  placeholder="Yêu cầu đặc biệt, ghi chú cho khách sạn..."
-                  class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-stone-500 focus:bg-white focus:ring-2 focus:ring-stone-200"
-                ></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- Services -->
-          <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-            <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-5">
-              <div class="flex items-center gap-3">
-                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-lg text-white">🛎️</div>
-                <h3 class="text-lg font-semibold text-stone-900">Chọn dịch vụ kèm theo</h3>
-              </div>
-            </div>
-
-            <div class="space-y-2 p-4">
-              <label
-                v-for="service in services"
-                :key="service.serviceId"
-                :class="[
-                  'flex cursor-pointer items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all',
-                  bookingForm.serviceIds.includes(service.serviceId)
-                    ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-900/10'
-                    : 'border-stone-200 hover:border-stone-400 hover:bg-stone-50'
-                ]"
-              >
-                <div class="flex items-center gap-3">
-                  <input
-                    v-model="bookingForm.serviceIds"
-                    type="checkbox"
-                    :value="service.serviceId"
-                    class="h-4 w-4 rounded accent-stone-900"
-                  />
-                  <span class="font-medium text-stone-700">{{ service.serviceName }}</span>
-                </div>
-                <span class="rounded-lg bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700">{{ formatPrice(service.unitPrice) }}</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Quote / Total -->
-          <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-            <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-5">
-              <div class="flex items-center gap-3">
-                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-lg text-white">🧾</div>
-                <h4 class="text-sm font-semibold uppercase tracking-widest text-stone-500">Tổng tiền</h4>
-              </div>
-            </div>
-
-            <div class="p-6">
-              <div v-if="!quote" class="rounded-xl bg-stone-50 px-4 py-6 text-center">
-                <div class="text-2xl">💳</div>
-                <p class="mt-2 text-sm text-stone-500">Chọn phòng và bấm "Tính tổng tiền".</p>
-              </div>
-
-              <div v-else class="space-y-3 text-sm">
-                <div class="flex items-center justify-between rounded-lg bg-stone-50 px-3 py-2 text-stone-700">
-                  <span>🛏️ Phòng {{ quote.room.roomNumber }} ({{ quote.nights }} đêm)</span>
-                  <span class="font-medium">{{ formatPrice(quote.price.roomCost) }}</span>
-                </div>
-                <div class="flex items-center justify-between rounded-lg bg-stone-50 px-3 py-2 text-stone-700">
-                  <span>🛎️ Dịch vụ kèm theo</span>
-                  <span class="font-medium">{{ formatPrice(quote.price.servicesCost) }}</span>
-                </div>
-                <div class="border-t-2 border-dashed border-stone-200 pt-3">
-                  <div class="flex items-center justify-between">
-                    <span class="text-base font-bold text-stone-900">Tổng cộng</span>
-                    <span class="text-2xl font-bold text-stone-900">{{ formatPrice(quote.price.totalCost) }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex gap-3">
-            <button
-              type="button"
-              @click="calculateQuote"
-              :disabled="loadingQuote || !selectedRoomId"
-              class="w-full rounded-xl border-2 border-stone-300 px-4 py-3.5 text-sm font-semibold text-stone-700 transition hover:border-stone-500 hover:bg-stone-50 disabled:opacity-50"
-            >
-              {{ loadingQuote ? '⏳ Đang tính...' : '🧮 Tính tổng tiền' }}
-            </button>
-            <button
-              type="button"
-              @click="submitBooking"
-              :disabled="submitting || !quote"
-              class="w-full rounded-xl bg-stone-900 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-stone-300/50 transition hover:bg-stone-700 hover:shadow-xl disabled:opacity-50"
-            >
-              {{ submitting ? '⏳ Đang đặt...' : '✅ Đặt phòng' }}
-            </button>
-          </div>
-
-          <!-- Success -->
-          <p v-if="successMessage" class="flex items-center gap-2 rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 ring-1 ring-emerald-200">
-            <span>🎉</span> {{ successMessage }}
-          </p>
-        </section>
-      </div>
     </div>
   </div>
 </template>

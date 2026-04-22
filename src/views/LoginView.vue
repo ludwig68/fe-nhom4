@@ -15,58 +15,51 @@
   - Token lưu vào localStorage → reload không mất
   - Router guard nhận ra đã login → cho phép vào trang private
   =============================================================
--->
+--><template>
+  <div class="mx-auto mt-10 max-w-md rounded-lg bg-white p-6 shadow-md border border-stone-200">
+    <h1 class="mb-6 text-2xl font-bold text-stone-800 text-center">Đăng nhập tài khoản</h1>
+    
+    <form @submit.prevent="handleLogin" class="space-y-4">
+      <div>
+        <label class="mb-1 block text-sm font-medium text-stone-700">Tên đăng nhập:</label>
+        <input 
+          v-model="form.username" 
+          type="text" 
+          class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" 
+          placeholder="Nhập tên đăng nhập"
+        />
+      </div>
+      
+      <div>
+        <label class="mb-1 block text-sm font-medium text-stone-700">Mật khẩu:</label>
+        <input 
+          v-model="form.password" 
+          type="password" 
+          class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" 
+          placeholder="Nhập mật khẩu"
+        />
+      </div>
 
-<template>
-  <div class="flex min-h-screen items-center justify-center bg-stone-50 px-4 py-10">
-    <div class="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm ring-1 ring-stone-200">
-      <p class="text-sm text-stone-500">Chào mừng trở lại</p>
-      <h1 class="mt-2 text-3xl font-semibold text-stone-900">Đăng nhập</h1>
+      <p v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
 
-      <!-- Form đăng nhập -->
-      <!-- @submit.prevent: chặn reload trang khi submit, gọi handleLogin -->
-      <form class="mt-8 space-y-5" @submit.prevent="handleLogin">
-        <!-- Input: Tên đăng nhập -->
-        <!-- v-model: 2-way binding → form.username tự cập nhật khi user gõ -->
-        <div>
-          <label class="mb-2 block text-sm text-stone-600">Tên đăng nhập</label>
-          <input
-            v-model="form.username"
-            type="text"
-            class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none"
-          />
-        </div>
+      <button 
+        type="submit" 
+        :disabled="loading" 
+        class="w-full rounded-md bg-stone-800 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:opacity-50"
+      >
+        {{ loading ? 'Đang xử lý...' : 'Đăng nhập' }}
+      </button>
+    </form>
 
-        <!-- Input: Mật khẩu -->
-        <div>
-          <label class="mb-2 block text-sm text-stone-600">Mật khẩu</label>
-          <input
-            v-model="form.password"
-            type="password"
-            class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none"
-          />
-        </div>
-
-        <!-- Hiển thị lỗi nếu có -->
-        <p v-if="errorMessage" class="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600 ring-1 ring-rose-200">
-          {{ errorMessage }}
-        </p>
-
-        <!-- Nút đăng nhập -->
-        <!-- :disabled="loading": vô hiệu hóa khi đang xử lý -->
-        <!-- {{ loading ? '...' : '...' }}: hiển thị text khác nhau tùy trạng thái -->
-        <button
-          :disabled="loading"
-          class="w-full rounded-2xl bg-stone-900 px-5 py-3 font-medium text-white disabled:opacity-60"
-        >
-          {{ loading ? 'Đang xử lý...' : 'Đăng nhập' }}
-        </button>
-      </form>
-
-      <!-- Links: Quên mật khẩu + Tạo tài khoản -->
-      <div class="mt-6 flex items-center justify-between text-sm">
-        <RouterLink to="/forgot-password" class="text-stone-600 hover:text-stone-900">Quên mật khẩu?</RouterLink>
-        <RouterLink to="/register" class="text-stone-900 hover:text-stone-600">Tạo tài khoản</RouterLink>
+    <div class="mt-6 flex flex-col items-center gap-2 text-sm">
+      <RouterLink to="/forgot-password" class="text-stone-600 hover:text-stone-900 hover:underline">
+        Quên mật khẩu?
+      </RouterLink>
+      <div class="text-stone-500">
+        Chưa có tài khoản?
+        <RouterLink to="/register" class="font-medium text-stone-800 hover:underline">
+          Tạo tài khoản
+        </RouterLink>
       </div>
     </div>
   </div>

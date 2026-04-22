@@ -8,52 +8,37 @@
         </div>
 
         <nav class="flex flex-wrap items-center gap-2">
-          <RouterLink
-            to="/branches"
-            class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
-          >
+          <RouterLink to="/branches"
+            class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
             Chi nhanh
           </RouterLink>
-          <RouterLink
-            to="/rooms"
-            class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
-          >
+          <RouterLink to="/rooms"
+            class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
             Tim phong
           </RouterLink>
-          <RouterLink
-            to="/booking"
-            class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700"
-          >
+          <RouterLink to="/booking"
+            class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700">
             Dat phong
           </RouterLink>
 
           <template v-if="authStore.isAuthenticated">
-            <RouterLink
-              to="/my-bookings"
-              class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
-            >
+            <RouterLink to="/my-bookings"
+              class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
               Don cua toi
             </RouterLink>
-            <button
-              type="button"
-              @click="handleLogout"
-              class="rounded-xl border border-rose-300 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
-            >
+            <button type="button" @click="handleLogout"
+              class="rounded-xl border border-rose-300 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50">
               Dang xuat
             </button>
           </template>
 
           <template v-else>
-            <RouterLink
-              to="/login"
-              class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
-            >
+            <RouterLink to="/login"
+              class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
               Dang nhap
             </RouterLink>
-            <RouterLink
-              to="/register"
-              class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700"
-            >
+            <RouterLink to="/register"
+              class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700">
               Dang ky
             </RouterLink>
           </template>
@@ -92,22 +77,16 @@
           </div>
 
           <div class="mt-6 flex flex-wrap gap-3">
-            <RouterLink
-              to="/rooms"
-              class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
-            >
+            <RouterLink to="/rooms"
+              class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
               Xem tat ca phong
             </RouterLink>
-            <RouterLink
-              to="/branches"
-              class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
-            >
+            <RouterLink to="/branches"
+              class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
               Xem chi nhanh
             </RouterLink>
-            <RouterLink
-              to="/booking"
-              class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700"
-            >
+            <RouterLink to="/booking"
+              class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700">
               Bat dau dat phong
             </RouterLink>
           </div>
@@ -139,10 +118,7 @@
         </aside>
       </section>
 
-      <p
-        v-if="loadError"
-        class="mt-6 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200"
-      >
+      <p v-if="loadError" class="mt-6 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200">
         {{ loadError }}
       </p>
 
@@ -158,23 +134,19 @@
           <div v-for="n in 3" :key="`branch-skeleton-${n}`" class="h-44 rounded-2xl bg-stone-200/80" />
         </div>
 
-        <div v-else-if="topBranches.length === 0" class="rounded-2xl bg-white px-6 py-8 text-center text-stone-500 ring-1 ring-stone-200">
+        <div v-else-if="topBranches.length === 0"
+          class="rounded-2xl bg-white px-6 py-8 text-center text-stone-500 ring-1 ring-stone-200">
           Chua co du lieu chi nhanh.
         </div>
 
         <div v-else class="grid gap-4 md:grid-cols-3">
-          <article
-            v-for="branch in topBranches"
-            :key="branch.branchId"
-            class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-stone-200"
-          >
+          <article v-for="branch in topBranches" :key="branch.branchId"
+            class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
             <h4 class="text-lg font-semibold text-stone-900">{{ branch.branchName }}</h4>
             <p class="mt-2 line-clamp-2 text-sm text-stone-600">{{ branch.address || 'Chua cap nhat dia chi' }}</p>
             <p class="mt-2 text-sm text-stone-500">{{ branch.phone || 'Chua cap nhat SDT' }}</p>
-            <RouterLink
-              :to="`/branches/${branch.branchId}`"
-              class="mt-4 inline-flex rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
-            >
+            <RouterLink :to="`/branches/${branch.branchId}`"
+              class="mt-4 inline-flex rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
               Xem chi tiet
             </RouterLink>
           </article>
@@ -193,23 +165,17 @@
           <div v-for="n in 6" :key="`room-skeleton-${n}`" class="h-64 rounded-2xl bg-stone-200/80" />
         </div>
 
-        <div v-else-if="featuredRooms.length === 0" class="rounded-2xl bg-white px-6 py-8 text-center text-stone-500 ring-1 ring-stone-200">
+        <div v-else-if="featuredRooms.length === 0"
+          class="rounded-2xl bg-white px-6 py-8 text-center text-stone-500 ring-1 ring-stone-200">
           Chua co phong trong phu hop.
         </div>
 
         <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <article
-            v-for="room in featuredRooms"
-            :key="room.roomId"
-            class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-stone-200"
-          >
+          <article v-for="room in featuredRooms" :key="room.roomId"
+            class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-stone-200">
             <div class="h-44 bg-stone-100">
-              <img
-                v-if="room.images?.[0]?.imageUrl"
-                :src="room.images[0].imageUrl"
-                :alt="`Phong ${room.roomNumber}`"
-                class="h-full w-full object-cover"
-              />
+              <img v-if="room.images?.[0]?.imageUrl" :src="room.images[0].imageUrl" :alt="`Phong ${room.roomNumber}`"
+                class="h-full w-full object-cover" />
               <div v-else class="flex h-full items-center justify-center text-sm text-stone-500">
                 Chua co hinh anh
               </div>
@@ -221,7 +187,8 @@
                   <h4 class="text-lg font-semibold text-stone-900">Phong {{ room.roomNumber }}</h4>
                   <p class="mt-1 text-sm text-stone-500">{{ room.branchName }}</p>
                 </div>
-                <span class="rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+                <span
+                  class="rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
                   {{ room.status }}
                 </span>
               </div>
@@ -230,26 +197,19 @@
               <p class="mt-1 text-lg font-semibold text-stone-900">{{ formatPrice(room.pricePerNight) }}/dem</p>
 
               <div class="mt-3 flex flex-wrap gap-2">
-                <span
-                  v-for="amenity in (room.amenities || []).slice(0, 3)"
-                  :key="`${room.roomId}-${amenity.amenityId}`"
-                  class="rounded-full bg-stone-100 px-2 py-1 text-xs text-stone-700"
-                >
+                <span v-for="amenity in (room.amenities || []).slice(0, 3)" :key="`${room.roomId}-${amenity.amenityId}`"
+                  class="rounded-full bg-stone-100 px-2 py-1 text-xs text-stone-700">
                   {{ amenity.amenityName }}
                 </span>
               </div>
 
               <div class="mt-4 grid grid-cols-2 gap-2">
-                <RouterLink
-                  :to="`/rooms/${room.roomId}`"
-                  class="inline-flex items-center justify-center rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
-                >
+                <RouterLink :to="`/rooms/${room.roomId}`"
+                  class="inline-flex items-center justify-center rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100">
                   Chi tiet
                 </RouterLink>
-                <RouterLink
-                  :to="{ path: '/booking', query: { roomId: room.roomId } }"
-                  class="inline-flex items-center justify-center rounded-xl bg-stone-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-stone-700"
-                >
+                <RouterLink :to="{ path: '/booking', query: { roomId: room.roomId } }"
+                  class="inline-flex items-center justify-center rounded-xl bg-stone-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-stone-700">
                   Dat ngay
                 </RouterLink>
               </div>
@@ -275,11 +235,8 @@
         </div>
 
         <div v-else class="grid gap-3 sm:grid-cols-3">
-          <article
-            v-for="service in services"
-            :key="service.serviceId"
-            class="rounded-2xl border border-stone-200 bg-stone-50 p-4"
-          >
+          <article v-for="service in services" :key="service.serviceId"
+            class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
             <p class="text-base font-semibold text-stone-900">{{ service.serviceName }}</p>
             <p class="mt-2 line-clamp-2 text-sm text-stone-600">{{ service.description || 'Khong co mo ta' }}</p>
           </article>

@@ -13,176 +13,94 @@
 -->
 
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-white px-4 py-10">
-    <div class="mx-auto max-w-5xl">
-      <!-- Header -->
-      <div class="mb-6 flex items-center justify-between gap-4">
-        <RouterLink to="/" class="group inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-sm ring-1 ring-stone-200 transition hover:bg-stone-900 hover:text-white hover:ring-stone-900">
-          <span class="transition group-hover:-translate-x-0.5">←</span>
-          Về trang chủ
-        </RouterLink>
-        <RouterLink to="/booking" class="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-stone-300/50 transition hover:bg-stone-700 hover:shadow-lg">
-          <span>+</span> Đặt phòng mới
-        </RouterLink>
-      </div>
-
-      <!-- Title -->
-      <div class="mb-6">
-        <div class="flex items-center gap-3">
-          <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-900 text-xl text-white">📋</div>
-          <div>
-            <h1 class="text-2xl font-semibold text-stone-900">Lịch sử đặt phòng</h1>
-            <p class="text-sm text-stone-500">Xem và quản lý các đơn đặt phòng của bạn</p>
-          </div>
+  <div class="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-stone-800">Lịch sử đặt phòng</h1>
+        <div class="mt-2 flex gap-4 text-sm">
+          <RouterLink to="/" class="font-medium text-stone-500 hover:text-stone-900">Về trang chủ</RouterLink>
+          <span class="text-stone-300">|</span>
+          <RouterLink to="/booking" class="font-medium text-stone-500 hover:text-stone-900">Đặt phòng mới</RouterLink>
         </div>
       </div>
 
-      <!-- Latest booking banner -->
-      <div
-        v-if="latestBooking"
-        class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-emerald-50/50 px-5 py-4 shadow-sm"
-      >
-        <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-lg">🎉</div>
+      <div class="flex items-center gap-3">
+        <label class="text-sm font-medium text-stone-700">Trạng thái:</label>
+        <select v-model="selectedStatus" @change="fetchBookings()" class="rounded-md border border-stone-300 bg-white py-1.5 pl-3 pr-8 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500">
+          <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Thông báo lỗi/thành công -->
+    <div v-if="successMessage" class="mb-4 rounded-md bg-emerald-50 p-4 text-sm text-emerald-700 border border-emerald-200">
+      {{ successMessage }}
+    </div>
+    <div v-if="errorMessage" class="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-600 border border-red-200">
+      {{ errorMessage }}
+    </div>
+
+    <div v-if="loading" class="flex h-64 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-500 shadow-sm">
+      Đang tải danh sách...
+    </div>
+    <div v-else-if="bookings.length === 0" class="flex h-64 flex-col items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-500 shadow-sm">
+      <p>Chưa có đơn đặt phòng nào.</p>
+      <RouterLink to="/rooms" class="mt-4 rounded-md bg-stone-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700">
+        Tìm phòng ngay
+      </RouterLink>
+    </div>
+    
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-for="booking in bookings" :key="booking.bookingId" class="flex flex-col rounded-lg border border-stone-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+        <div class="mb-3 flex items-start justify-between">
           <div>
-            <p class="text-sm text-emerald-700">Mã đơn vừa tạo:</p>
-            <p class="text-lg font-bold text-emerald-800">{{ latestBooking.bookingCode }}</p>
+            <span class="text-xs font-semibold text-stone-500 uppercase tracking-widest">Mã đơn</span>
+            <h3 class="text-lg font-bold text-stone-900">{{ booking.bookingCode }}</h3>
+          </div>
+          <span :class="statusBadgeClass(booking.status)">
+            {{ booking.status }}
+          </span>
+        </div>
+
+        <div class="mb-4 space-y-2 text-sm text-stone-600">
+          <div class="flex justify-between border-b border-stone-100 pb-2">
+            <span>Chi nhánh:</span>
+            <span class="font-medium text-stone-900">{{ booking.branch.branchName }}</span>
+          </div>
+          <div class="flex justify-between border-b border-stone-100 pb-2">
+            <span>Phòng:</span>
+            <span class="font-medium text-stone-900">
+              <span v-if="booking.room">{{ booking.roomType.typeName }} - {{ booking.room.roomNumber }}</span>
+              <span v-else>{{ booking.roomType.typeName }} (Chưa phân)</span>
+            </span>
+          </div>
+          <div class="flex justify-between border-b border-stone-100 pb-2">
+            <span>Thời gian lưu trú:</span>
+            <span class="font-medium text-stone-900">{{ formatDate(booking.checkIn) }} ➔ {{ formatDate(booking.checkOut) }}</span>
+          </div>
+          <div class="flex justify-between pt-1">
+            <span class="font-medium text-stone-900">Tổng tiền:</span>
+            <span class="text-base font-bold text-stone-900">{{ formatPrice(booking.totalPrice) }}</span>
           </div>
         </div>
-        <RouterLink :to="buildDetailPath(latestBooking)" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700">
-          Xem chi tiết →
-        </RouterLink>
+
+        <div class="mt-auto pt-4 border-t border-stone-100 flex items-center gap-2">
+          <RouterLink :to="buildDetailPath(booking)" class="flex-1 rounded-md border border-stone-300 bg-white px-3 py-2 text-center text-sm font-medium text-stone-700 transition hover:bg-stone-50">
+            Xem chi tiết
+          </RouterLink>
+          
+          <button 
+            v-if="canCancel(booking.status)" 
+            @click="handleCancel(booking.bookingId, booking.bookingCode)"
+            :disabled="cancellingId === booking.bookingId"
+            class="flex-1 rounded-md bg-red-50 text-red-700 border border-red-200 px-3 py-2 text-sm font-medium transition hover:bg-red-100 disabled:opacity-50"
+          >
+            {{ cancellingId === booking.bookingId ? 'Đang hủy...' : 'Hủy đơn' }}
+          </button>
+        </div>
       </div>
-
-      <!-- Status filter tabs -->
-      <div class="mb-6 flex flex-wrap gap-2">
-        <button
-          v-for="opt in statusOptions"
-          :key="opt.value"
-          @click="selectedStatus = opt.value; fetchBookings()"
-          :class="[
-            'rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200',
-            selectedStatus === opt.value
-              ? 'bg-stone-900 text-white shadow-md shadow-stone-300/50'
-              : 'bg-white text-stone-600 ring-1 ring-stone-200 hover:bg-stone-50 hover:ring-stone-300'
-          ]"
-        >
-          {{ opt.label }}
-        </button>
-      </div>
-
-      <!-- Loading -->
-      <div v-if="loading" class="rounded-2xl bg-white px-6 py-12 text-center shadow-sm ring-1 ring-stone-200">
-        <div class="text-3xl">⏳</div>
-        <p class="mt-3 text-sm text-stone-500">Đang tải danh sách đơn đặt phòng...</p>
-      </div>
-
-      <!-- Empty state -->
-      <div v-else-if="bookings.length === 0" class="rounded-2xl bg-white px-6 py-12 text-center shadow-sm ring-1 ring-stone-200">
-        <div class="text-4xl">📭</div>
-        <p class="mt-3 text-lg font-medium text-stone-700">Chưa có đơn đặt phòng nào</p>
-        <p class="mt-2 text-sm text-stone-500">Hãy đặt phòng để bắt đầu trải nghiệm!</p>
-        <RouterLink
-          to="/booking"
-          class="mt-5 inline-flex items-center gap-2 rounded-xl bg-stone-900 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-stone-300/50 transition hover:bg-stone-700"
-        >
-          🛏️ Đặt phòng ngay
-        </RouterLink>
-      </div>
-
-      <!-- Booking List -->
-      <div v-else class="space-y-4">
-        <article
-          v-for="booking in bookings"
-          :key="booking.bookingId"
-          class="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-stone-200 transition-all duration-300 hover:shadow-md"
-        >
-          <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between">
-            <!-- Main Info -->
-            <div class="flex-1">
-              <div class="flex flex-wrap items-center gap-3">
-                <h3 class="text-lg font-bold text-stone-900">
-                  {{ booking.bookingCode }}
-                </h3>
-                <span :class="statusBadgeClass(booking.status)">
-                  {{ booking.status }}
-                </span>
-              </div>
-
-              <div class="mt-4 grid gap-3 text-sm text-stone-600 sm:grid-cols-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-base">🏢</span>
-                  <div>
-                    <span class="font-medium text-stone-700">Chi nhánh:</span>
-                    {{ booking.branch.branchName }}
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-base">🛏️</span>
-                  <div>
-                    <span class="font-medium text-stone-700">Phòng:</span>
-                    {{ booking.roomType.typeName }} · {{ booking.room?.roomNumber || 'Chưa phân phòng' }}
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-base">📅</span>
-                  <div>
-                    <span class="font-medium text-stone-700">Nhận phòng:</span>
-                    {{ formatDate(booking.checkIn) }} ({{ booking.checkInTime }})
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-base">📅</span>
-                  <div>
-                    <span class="font-medium text-stone-700">Trả phòng:</span>
-                    {{ formatDate(booking.checkOut) }} ({{ booking.checkOutTime }})
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-base">💰</span>
-                  <div>
-                    <span class="font-medium text-stone-700">Tổng tiền:</span>
-                    <span class="text-base font-bold text-stone-900">{{ formatPrice(booking.totalPrice) }}</span>
-                  </div>
-                </div>
-                <div v-if="booking.services.length > 0" class="flex items-center gap-2">
-                  <span class="text-base">🛎️</span>
-                  <div>
-                    <span class="font-medium text-stone-700">Dịch vụ:</span>
-                    {{ booking.services.map(s => s.serviceName).join(', ') }}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex flex-shrink-0 gap-2 sm:flex-col">
-              <RouterLink
-                :to="buildDetailPath(booking)"
-                class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-stone-300 px-4 py-2.5 text-center text-sm font-medium text-stone-700 transition hover:bg-stone-900 hover:text-white hover:ring-stone-900"
-              >
-                Chi tiết →
-              </RouterLink>
-              <button
-                v-if="canCancel(booking.status)"
-                @click="handleCancel(booking.bookingId, booking.bookingCode)"
-                :disabled="cancellingId === booking.bookingId"
-                class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-center text-sm font-medium text-rose-600 transition hover:bg-rose-100 disabled:opacity-60"
-              >
-                {{ cancellingId === booking.bookingId ? '⏳ Đang hủy...' : '✕ Hủy đơn' }}
-              </button>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <!-- Messages -->
-      <p v-if="successMessage" class="mt-5 flex items-center gap-2 rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 ring-1 ring-emerald-200">
-        <span>✅</span> {{ successMessage }}
-      </p>
-      <p v-if="errorMessage" class="mt-5 flex items-center gap-2 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600 ring-1 ring-rose-200">
-        <span>⚠️</span> {{ errorMessage }}
-      </p>
     </div>
   </div>
 </template>

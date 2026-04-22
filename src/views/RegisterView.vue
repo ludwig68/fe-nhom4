@@ -1,137 +1,100 @@
 <template>
-  <div class="min-h-screen bg-stone-50 px-4 py-10">
-    <div class="mx-auto w-full max-w-3xl rounded-3xl bg-white p-8 shadow-sm ring-1 ring-stone-200">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+  <div class="mx-auto mt-10 max-w-2xl rounded-lg bg-white p-8 shadow-md border border-stone-200">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-stone-800">Đăng ký tài khoản</h1>
+      <RouterLink to="/" class="text-sm font-medium text-stone-500 hover:text-stone-900">
+        Về trang chủ
+      </RouterLink>
+    </div>
+
+    <form @submit.prevent="handleRegister" class="space-y-4">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <p class="text-sm text-stone-500">Tạo tài khoản mới</p>
-          <h1 class="mt-2 text-3xl font-semibold text-stone-900">Đăng ký tài khoản</h1>
-          <p class="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
-            Chảo mừng bạn đến với hệ thống đặt phòng khách sạn! Hãy tạo tài khoản để trải nghiệm việc đặt phòng dễ dàng và nhanh chóng.
-          </p>
+          <label class="mb-1 block text-sm font-medium text-stone-700">Tên đăng nhập:</label>
+          <input 
+            v-model.trim="form.username" 
+            type="text" 
+            class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" 
+          />
         </div>
 
-        <RouterLink
-          to="/"
-          class="inline-flex rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:text-stone-900"
-        >
-          Về trang chủ
-        </RouterLink>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-stone-700">Họ và tên:</label>
+          <input 
+            v-model.trim="form.fullName" 
+            type="text" 
+            class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" 
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-stone-700">Email:</label>
+          <input 
+            v-model.trim="form.email" 
+            type="email" 
+            class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" 
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-stone-700">Số điện thoại:</label>
+          <input 
+            v-model.trim="form.phone" 
+            type="tel" 
+            class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" 
+          />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="mb-1 block text-sm font-medium text-stone-700">Địa chỉ:</label>
+          <input 
+            v-model.trim="form.address" 
+            type="text" 
+            class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" 
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-stone-700">Mật khẩu:</label>
+          <input 
+            v-model="form.password" 
+            type="password" 
+            class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" 
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-stone-700">Xác nhận mật khẩu:</label>
+          <input 
+            v-model="form.confirmPassword" 
+            type="password" 
+            class="w-full rounded-md border border-stone-300 p-2 text-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500" 
+          />
+        </div>
       </div>
 
-      <form class="mt-8 grid gap-5 sm:grid-cols-2" @submit.prevent="handleRegister">
-        <div>
-          <label class="mb-2 block text-sm text-stone-600" for="username">Tên đăng nhập</label>
-          <input
-            id="username"
-            v-model.trim="form.username"
-            type="text"
-            autocomplete="username"
-            class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="Tối thiểu 3 ký tự"
-          />
-        </div>
+      <div v-if="message" class="rounded-md bg-emerald-50 p-3 text-sm text-emerald-600 border border-emerald-200">
+        {{ message }}
+      </div>
+      <div v-if="errorMessage" class="rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+        {{ errorMessage }}
+      </div>
 
-        <div>
-          <label class="mb-2 block text-sm text-stone-600" for="full-name">Họ và tên</label>
-          <input
-            id="full-name"
-            v-model.trim="form.fullName"
-            type="text"
-            autocomplete="name"
-            class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="Nguyễn Văn A"
-          />
-        </div>
+      <button 
+        type="submit" 
+        :disabled="loading"
+        class="mt-4 w-full rounded-md bg-stone-800 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:opacity-50"
+      >
+        {{ loading ? 'Đang xử lý...' : 'Đăng ký tài khoản' }}
+      </button>
 
-        <div>
-          <label class="mb-2 block text-sm text-stone-600" for="email">Email</label>
-          <input
-            id="email"
-            v-model.trim="form.email"
-            type="email"
-            autocomplete="email"
-            class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="tenban@example.com"
-          />
-        </div>
-
-        <div>
-          <label class="mb-2 block text-sm text-stone-600" for="phone">Số điện thoại</label>
-          <input
-            id="phone"
-            v-model.trim="form.phone"
-            type="tel"
-            inputmode="numeric"
-            autocomplete="tel"
-            class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="Nhập số điện thoại"
-          />
-        </div>
-
-        <div class="sm:col-span-2">
-          <label class="mb-2 block text-sm text-stone-600" for="address">Địa chỉ</label>
-          <input
-            id="address"
-            v-model.trim="form.address"
-            type="text"
-            autocomplete="street-address"
-            class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="Nhập địa chỉ của bạn"
-          />
-        </div>
-
-        <div>
-          <label class="mb-2 block text-sm text-stone-600" for="password">Mật khẩu</label>
-          <input
-            id="password"
-            v-model="form.password"
-            type="password"
-            autocomplete="new-password"
-            class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="Tối thiểu 6 ký tự"
-          />
-        </div>
-
-        <div>
-          <label class="mb-2 block text-sm text-stone-600" for="confirm-password">Xác nhận mật khẩu</label>
-          <input
-            id="confirm-password"
-            v-model="form.confirmPassword"
-            type="password"
-            autocomplete="new-password"
-            class="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none transition focus:border-stone-500"
-            placeholder="Nhập lại mật khẩu"
-          />
-        </div>
-
-        <p
-          v-if="message"
-          class="sm:col-span-2 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-emerald-200"
-        >
-          {{ message }}
-        </p>
-        <p
-          v-if="errorMessage"
-          class="sm:col-span-2 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600 ring-1 ring-rose-200"
-        >
-          {{ errorMessage }}
-        </p>
-
-        <div class="sm:col-span-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <RouterLink to="/login" class="text-sm text-stone-600 hover:text-stone-900">
-            Đã có tài khoản? Đăng nhập
-          </RouterLink>
-
-          <button
-            type="submit"
-            :disabled="loading"
-            class="inline-flex items-center justify-center rounded-2xl bg-stone-900 px-6 py-3 font-medium text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {{ loading ? 'Đang xử lý...' : 'Đăng ký tài khoản' }}
-          </button>
-        </div>
-      </form>
-    </div>
+      <div class="mt-4 text-center text-sm text-stone-500">
+        Đã có tài khoản?
+        <RouterLink to="/login" class="font-medium text-stone-800 hover:underline">
+          Đăng nhập
+        </RouterLink>
+      </div>
+    </form>
   </div>
 </template>
 

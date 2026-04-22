@@ -140,28 +140,31 @@
             <div class="mt-6 grid gap-4 md:grid-cols-2">
               <div>
                 <label class="mb-2 block text-sm text-stone-500">Ngày nhận phòng</label>
-                <input type="date" class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500" />
+                <input v-model="searchForm.checkIn" type="date" class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500" />
               </div>
               <div>
                 <label class="mb-2 block text-sm text-stone-500">Ngày trả phòng</label>
-                <input type="date" class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500" />
+                <input v-model="searchForm.checkOut" type="date" class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500" />
               </div>
               <div>
                 <label class="mb-2 block text-sm text-stone-500">Chi nhánh</label>
-                <select class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500">
-                  <option>Chọn chi nhánh</option>
-                  <option>TP. Hồ Chí Minh</option>
-                  <option>Đà Nẵng</option>
-                  <option>Hà Nội</option>
+                <select v-model="searchForm.branchId" class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500">
+                  <option value="">Chọn chi nhánh</option>
+                  <option v-for="branch in branches" :key="branch.branchId" :value="branch.branchId">
+                    {{ branch.branchName }}
+                  </option>
                 </select>
               </div>
               <div>
                 <label class="mb-2 block text-sm text-stone-500">Số người</label>
-                <select class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500">
-                  <option>Chọn số người</option>
-                  <option>2 người</option>
-                  <option>4 người</option>
-                  <option>6 người</option>
+                <select v-model="searchForm.capacity" class="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-stone-500">
+                  <option value="">Chọn số người</option>
+                  <option value="1">1 người</option>
+                  <option value="2">2 người</option>
+                  <option value="3">3 người</option>
+                  <option value="4">4 người</option>
+                  <option value="5">5 người</option>
+                  <option value="6">6 người</option>
                 </select>
               </div>
             </div>
@@ -169,7 +172,7 @@
             <div class="mt-6 grid gap-3 sm:grid-cols-3">
               <div class="rounded-2xl bg-white p-4 ring-1 ring-stone-200">
                 <p class="text-xs uppercase tracking-[0.2em] text-stone-400">Giá từ</p>
-                <p class="mt-2 text-lg font-semibold text-stone-900">850.000đ</p>
+                <p class="mt-2 text-lg font-semibold text-stone-900">{{ formatCurrency(minimumPrice) }}</p>
               </div>
               <div class="rounded-2xl bg-white p-4 ring-1 ring-stone-200">
                 <p class="text-xs uppercase tracking-[0.2em] text-stone-400">Dịch vụ</p>
@@ -181,9 +184,9 @@
               </div>
             </div>
 
-            <RouterLink to="/rooms" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-stone-900 px-5 py-4 text-sm font-semibold text-white transition hover:opacity-90">
+            <button @click="handleSearch" type="button" class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-stone-900 px-5 py-4 text-sm font-semibold text-white transition hover:opacity-90">
               Tìm phòng ngay
-            </RouterLink>
+            </button>
           </div>
         </div>
       </div>
@@ -213,12 +216,12 @@
       </div>
 
       <div class="grid gap-6 lg:grid-cols-3">
-        <article v-for="branch in branches" :key="branch.branch_id" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
+        <article v-for="branch in branches" :key="branch.branchId" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
           <div class="h-56 bg-[linear-gradient(135deg,#f5f5f4,#e7e5e4,#fafaf9)]"></div>
           <div class="p-6">
             <div class="flex items-start justify-between gap-4">
               <div>
-                <h3 class="text-xl font-semibold text-stone-900">{{ branch.branch_name }}</h3>
+                <h3 class="text-xl font-semibold text-stone-900">{{ branch.branchName }}</h3>
                 <p class="mt-2 text-sm text-stone-500">{{ branch.address }}</p>
               </div>
               <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">
@@ -228,7 +231,7 @@
             <p class="mt-4 text-sm leading-7 text-stone-600 line-clamp-3">{{ branch.description }}</p>
             <div class="mt-5 flex items-center justify-between text-sm">
               <span class="text-stone-500">{{ branch.phone || 'Chưa cập nhật số điện thoại' }}</span>
-              <button @click="router.push('/branches/' + branch.branch_id)" class="font-medium text-stone-900 transition hover:text-stone-600">Xem chi tiết</button>
+              <button @click="router.push('/branches/' + branch.branchId)" class="font-medium text-stone-900 transition hover:text-stone-600">Xem chi tiết</button>
             </div>
           </div>
         </article>
@@ -242,32 +245,32 @@
       </div>
 
       <div class="mb-6 grid gap-4 rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-stone-200 lg:grid-cols-5">
-        <input type="text" placeholder="Tìm theo tên phòng hoặc chi nhánh" class="rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none lg:col-span-2" />
-        <select class="rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none">
-          <option>Loại phòng</option>
-          <option>Standard</option>
-          <option>Deluxe</option>
-          <option>Suite</option>
+        <input v-model="quickFilter.keyword" type="text" placeholder="Tìm theo tên phòng hoặc chi nhánh" class="rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none lg:col-span-2" />
+        <select v-model="quickFilter.type" class="rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none">
+          <option value="">Loại phòng</option>
+          <option v-for="t in uniqueRoomTypes" :key="t" :value="t">{{ t }}</option>
         </select>
-        <select class="rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none">
-          <option>Mức giá</option>
-          <option>Dưới 1 triệu</option>
-          <option>1 - 2 triệu</option>
-          <option>Trên 2 triệu</option>
+        <select v-model="quickFilter.priceRange" class="rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm outline-none">
+          <option value="">Mức giá</option>
+          <option value="under1">Dưới 1 triệu</option>
+          <option value="1to2">1 - 2 triệu</option>
+          <option value="over2">Trên 2 triệu</option>
         </select>
-        <button class="rounded-2xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90">
+        <button @click="handleQuickSearch" type="button" class="rounded-2xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90">
           Lọc phòng
         </button>
       </div>
 
       <div class="grid gap-6 lg:grid-cols-3">
-        <article v-for="room in rooms.slice(0, 3)" :key="room.room_id" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
-          <div class="h-56 bg-[linear-gradient(135deg,#fafaf9,#e7e5e4,#f5f5f4)]"></div>
+        <article v-for="room in rooms.slice(0, 3)" :key="room.roomId" class="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
+          <div class="h-56 bg-[linear-gradient(135deg,#fafaf9,#e7e5e4,#f5f5f4)]">
+            <img v-if="room.images?.[0]?.imageUrl" :src="room.images[0].imageUrl" :alt="`Khách sạn ${room.roomNumber}`" class="h-full w-full object-cover">
+          </div>
           <div class="p-6">
             <div class="flex items-start justify-between gap-4">
               <div>
-                <h3 class="text-xl font-semibold text-stone-900">{{ room.room_name }}</h3>
-                <p class="mt-2 text-sm text-stone-500">{{ room.branch_name }}</p>
+                <h3 class="text-xl font-semibold text-stone-900">Phòng {{ room.roomNumber }}</h3>
+                <p class="mt-2 text-sm text-stone-500">{{ room.branchName }}</p>
               </div>
               <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
                 {{ getRoomStatusText(room.status) }}
@@ -275,22 +278,25 @@
             </div>
 
             <div class="mt-4 flex flex-wrap gap-2 text-xs">
-              <span v-if="room.type_name" class="rounded-full bg-stone-100 px-3 py-2 text-stone-700">
-                {{ room.type_name }}
+              <span v-if="room.roomType" class="rounded-full bg-stone-100 px-3 py-2 text-stone-700">
+                {{ room.roomType }}
               </span>
               <span v-if="room.capacity" class="rounded-full bg-stone-100 px-3 py-2 text-stone-700">
                 {{ room.capacity }} người
               </span>
             </div>
 
-            <div class="mt-5 flex items-end justify-between">
+            <div class="mt-6 flex items-center justify-between border-t border-stone-100 pt-4">
               <div>
-                <p class="text-sm text-stone-500">Giá / đêm</p>
-                <p class="text-2xl font-semibold text-stone-900">{{ formatCurrency(room.price_per_night) }}</p>
+                <p class="text-xs font-medium text-stone-500 uppercase tracking-widest">Giá mỗi đêm</p>
+                <p class="text-lg font-bold text-stone-900">{{ formatCurrency(room.pricePerNight) }}/đêm</p>
               </div>
-              <RouterLink :to="'/rooms/' + room.room_id" class="inline-flex items-center justify-center rounded-2xl border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-100">
-                Chi tiết phòng
+              <RouterLink v-if="room.isAvailable" :to="{ path: '/booking', query: { roomId: room.roomId } }" class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                Đặt ngay
               </RouterLink>
+              <button v-else disabled class="inline-flex items-center justify-center rounded-xl bg-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-500 cursor-not-allowed">
+                Tạm hết
+              </button>
             </div>
           </div>
         </article>
@@ -298,7 +304,7 @@
     </section>
 
     <section id="dat-phong" class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-      <div class="grid gap-8 lg:grid-cols-[1fr_0.92fr]">
+      <div class="grid gap-8 lg:grid-cols-1 max-w-4xl mx-auto">
         <div class="rounded-[32px] bg-white p-7 shadow-sm ring-1 ring-stone-200">
           <p class="text-sm font-medium uppercase tracking-[0.25em] text-stone-500">Các bước đặt phòng</p>
           <h2 class="mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">Đơn giản, rõ ràng và dễ theo dõi</h2>
@@ -313,61 +319,11 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="rounded-[32px] bg-white p-7 shadow-sm ring-1 ring-stone-200">
-          <div class="flex items-center justify-between gap-4">
-            <div>
-              <p class="text-sm text-stone-500">Thông tin đơn đặt phòng</p>
-              <h3 class="text-2xl font-semibold text-stone-900">Tổng tiền hiển thị rõ ràng</h3>
-            </div>
-            <span class="rounded-full bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
-              Chờ xác nhận
-            </span>
+          <div class="mt-8 flex justify-center">
+            <RouterLink to="/rooms" class="inline-flex w-full md:w-auto items-center justify-center rounded-2xl bg-stone-900 px-8 py-4 text-sm font-semibold text-white transition hover:opacity-90">
+              Bắt đầu tìm phòng
+            </RouterLink>
           </div>
-
-          <div class="mt-6 space-y-4 rounded-3xl bg-stone-50 p-5 ring-1 ring-stone-200">
-            <div class="flex items-center justify-between text-sm text-stone-700">
-              <span>Phòng Deluxe Ocean View</span>
-              <span>1.450.000đ</span>
-            </div>
-            <div class="flex items-center justify-between text-sm text-stone-700">
-              <span>2 đêm lưu trú</span>
-              <span>2.900.000đ</span>
-            </div>
-            <div class="flex items-center justify-between text-sm text-stone-700">
-              <span>Ăn sáng buffet</span>
-              <span>250.000đ</span>
-            </div>
-            <div class="flex items-center justify-between text-sm text-stone-700">
-              <span>Massage thư giãn</span>
-              <span>500.000đ</span>
-            </div>
-            <div class="border-t border-stone-200 pt-4">
-              <div class="flex items-center justify-between">
-                <span class="text-base font-semibold text-stone-900">Tổng cộng</span>
-                <span class="text-3xl font-semibold text-stone-900">3.650.000đ</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-6 grid gap-4 sm:grid-cols-2">
-            <div class="rounded-3xl bg-stone-50 p-5 ring-1 ring-stone-200">
-              <p class="text-sm text-stone-500">Mã đặt phòng</p>
-              <p class="mt-2 text-lg font-semibold text-stone-900">BK-2026-00125</p>
-            </div>
-            <div class="rounded-3xl bg-stone-50 p-5 ring-1 ring-stone-200">
-              <p class="text-sm text-stone-500">Trạng thái</p>
-              <p class="mt-2 text-lg font-semibold text-emerald-700">Đã gửi yêu cầu đặt phòng</p>
-            </div>
-          </div>
-
-          <RouterLink
-            to="/booking"
-            class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-stone-900 px-5 py-4 text-sm font-semibold text-white transition hover:opacity-90"
-          >
-            Đặt phòng ngay
-          </RouterLink>
         </div>
       </div>
     </section>
@@ -486,7 +442,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { branchService } from '@/services/branch.service'
@@ -502,6 +458,52 @@ const rooms = ref([])
 const reviews = ref([])
 const loadingReviews = ref(true)
 const reviewsError = ref('')
+
+const searchForm = reactive({
+  checkIn: '',
+  checkOut: '',
+  branchId: '',
+  capacity: ''
+})
+
+const quickFilter = reactive({
+  keyword: '',
+  type: '',
+  priceRange: ''
+})
+
+const handleSearch = () => {
+  const query = {}
+  if (searchForm.checkIn) query.checkIn = searchForm.checkIn
+  if (searchForm.checkOut) query.checkOut = searchForm.checkOut
+  if (searchForm.branchId) query.branchId = searchForm.branchId
+  if (searchForm.capacity) query.capacity = searchForm.capacity
+  router.push({ path: '/rooms', query })
+}
+
+const handleQuickSearch = () => {
+  const query = {}
+  if (quickFilter.keyword) query.keyword = quickFilter.keyword
+  if (quickFilter.type) query.typeId = quickFilter.type
+  if (quickFilter.priceRange === 'under1') query.maxPrice = 1000000
+  if (quickFilter.priceRange === '1to2') {
+    query.minPrice = 1000000
+    query.maxPrice = 2000000
+  }
+  if (quickFilter.priceRange === 'over2') query.minPrice = 2000000
+  router.push({ path: '/rooms', query })
+}
+
+const minimumPrice = computed(() => {
+  if (!rooms.value || rooms.value.length === 0) return 850000
+  return Math.min(...rooms.value.map(r => r.price_per_night || 850000))
+})
+
+const uniqueRoomTypes = computed(() => {
+  if (!rooms.value) return []
+  const types = new Set(rooms.value.map(r => r.roomType).filter(Boolean))
+  return Array.from(types)
+})
 
 const isHomeRoute = computed(() => route.name === 'home')
 

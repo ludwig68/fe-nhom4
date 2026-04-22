@@ -15,295 +15,156 @@
 -->
 
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-white px-4 py-10">
-    <div class="mx-auto max-w-4xl">
-      <!-- Header -->
-      <div class="mb-6 flex items-center justify-between gap-4">
-        <RouterLink to="/my-bookings" class="group inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-sm ring-1 ring-stone-200 transition hover:bg-stone-900 hover:text-white hover:ring-stone-900">
-          <span class="transition group-hover:-translate-x-0.5">←</span>
-          Về danh sách đơn
-        </RouterLink>
-        <RouterLink to="/" class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-sm ring-1 ring-stone-200 transition hover:bg-stone-900 hover:text-white hover:ring-stone-900">
-          Về trang chủ
-        </RouterLink>
+  <div class="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-stone-800">Chi tiết đơn đặt phòng</h1>
+      <div class="flex gap-4">
+        <RouterLink to="/my-bookings" class="text-sm font-medium text-stone-500 hover:text-stone-900">Về danh sách đơn</RouterLink>
+        <span class="text-stone-300">|</span>
+        <RouterLink to="/" class="text-sm font-medium text-stone-500 hover:text-stone-900">Về trang chủ</RouterLink>
       </div>
+    </div>
 
-      <!-- Loading -->
-      <div v-if="loading" class="rounded-3xl bg-white p-12 text-center shadow-sm ring-1 ring-stone-200">
-        <div class="text-3xl">⏳</div>
-        <p class="mt-3 text-sm text-stone-500">Đang tải chi tiết đơn đặt phòng...</p>
-      </div>
+    <div v-if="loading" class="flex h-64 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-500 shadow-sm">
+      Đang tải chi tiết đơn...
+    </div>
+    
+    <div v-else-if="errorMessage" class="rounded-md bg-red-50 p-4 text-sm text-red-600 border border-red-200">
+      {{ errorMessage }}
+    </div>
 
-      <!-- Error -->
-      <div v-else-if="errorMessage" class="rounded-3xl bg-rose-50 p-12 text-center ring-1 ring-rose-200">
-        <div class="text-3xl">⚠️</div>
-        <p class="mt-3 text-lg font-medium text-rose-600">{{ errorMessage }}</p>
-        <RouterLink to="/my-bookings" class="mt-4 inline-block rounded-xl bg-rose-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-rose-700">
-          Về danh sách đơn
-        </RouterLink>
-      </div>
-
-      <!-- Booking Detail -->
-      <div v-else-if="booking" class="space-y-6">
-        <!-- Status Header Card -->
-        <section class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-          <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-6">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-              <div class="flex items-center gap-4">
-                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-900 text-2xl text-white">📋</div>
-                <div>
-                  <p class="text-sm text-stone-500">Mã đơn đặt phòng</p>
-                  <h1 class="text-2xl font-bold text-stone-900">{{ booking.bookingCode }}</h1>
-                </div>
-              </div>
-              <span :class="statusBadgeClass(booking.status)">
-                {{ booking.status }}
-              </span>
+    <div v-else-if="booking" class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <!-- CỘT TRÁI: THÔNG TIN CHI TIẾT -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <div class="mb-4 flex items-center justify-between border-b border-stone-100 pb-4">
+            <div>
+              <span class="text-xs font-semibold text-stone-500 uppercase tracking-widest">Mã đơn đặt phòng</span>
+              <h2 class="text-2xl font-bold text-stone-900">{{ booking.bookingCode }}</h2>
             </div>
-          </div>
-
-          <!-- Progress Timeline -->
-          <div class="px-6 py-4">
-            <div class="flex items-center justify-between">
-              <div class="flex flex-col items-center gap-1">
-                <div :class="['flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all', isStatusPassed('chờ xác nhận') ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-500']">1</div>
-                <span class="text-xs text-stone-500">Chờ</span>
-              </div>
-              <div :class="['h-0.5 flex-1 mx-1 transition-all', isStatusPassed('đã xác nhận') ? 'bg-stone-900' : 'bg-stone-200']"></div>
-              <div class="flex flex-col items-center gap-1">
-                <div :class="['flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all', isStatusPassed('đã xác nhận') ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-500']">2</div>
-                <span class="text-xs text-stone-500">Xác nhận</span>
-              </div>
-              <div :class="['h-0.5 flex-1 mx-1 transition-all', isStatusPassed('đã check-in') ? 'bg-stone-900' : 'bg-stone-200']"></div>
-              <div class="flex flex-col items-center gap-1">
-                <div :class="['flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all', isStatusPassed('đã check-in') ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-500']">3</div>
-                <span class="text-xs text-stone-500">Check-in</span>
-              </div>
-              <div :class="['h-0.5 flex-1 mx-1 transition-all', isStatusPassed('đã check-out') ? 'bg-stone-900' : 'bg-stone-200']"></div>
-              <div class="flex flex-col items-center gap-1">
-                <div :class="['flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all', isStatusPassed('đã check-out') ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-500']">4</div>
-                <span class="text-xs text-stone-500">Check-out</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Room + Stay Info -->
-        <section class="grid gap-6 sm:grid-cols-2">
-          <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-            <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-4">
-              <div class="flex items-center gap-2">
-                <span class="text-lg">🏨</span>
-                <h2 class="text-lg font-semibold text-stone-900">Thông tin phòng</h2>
-              </div>
-            </div>
-            <div class="space-y-3 p-6 text-sm">
-              <p class="flex items-center gap-2"><span class="text-stone-400">🏢</span> <span class="font-medium text-stone-500">Chi nhánh:</span> {{ booking.branch.branchName }}</p>
-              <p v-if="booking.branch.address" class="flex items-center gap-2"><span class="text-stone-400">📍</span> <span class="font-medium text-stone-500">Địa chỉ:</span> {{ booking.branch.address }}</p>
-              <p class="flex items-center gap-2"><span class="text-stone-400">🛏️</span> <span class="font-medium text-stone-500">Loại phòng:</span> {{ booking.roomType.typeName }}</p>
-              <p class="flex items-center gap-2"><span class="text-stone-400">🚪</span> <span class="font-medium text-stone-500">Phòng:</span> {{ booking.room?.roomNumber || 'Chưa phân phòng' }}</p>
-              <p class="flex items-center gap-2"><span class="text-stone-400">👥</span> <span class="font-medium text-stone-500">Sức chứa:</span> {{ booking.roomType.capacity }} người</p>
-            </div>
-          </div>
-
-          <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-            <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-4">
-              <div class="flex items-center gap-2">
-                <span class="text-lg">🕐</span>
-                <h2 class="text-lg font-semibold text-stone-900">Thời gian lưu trú</h2>
-              </div>
-            </div>
-            <div class="space-y-3 p-6 text-sm">
-              <p class="flex items-center gap-2">
-                <span class="text-stone-400">📅</span>
-                <span class="font-medium text-stone-500">Nhận phòng:</span>
-                {{ formatDate(booking.checkIn) }} lúc {{ booking.checkInTime || '14:00' }}
-              </p>
-              <p class="flex items-center gap-2">
-                <span class="text-stone-400">📅</span>
-                <span class="font-medium text-stone-500">Trả phòng:</span>
-                {{ formatDate(booking.checkOut) }} lúc {{ booking.checkOutTime || '12:00' }}
-              </p>
-              <div class="mt-1 rounded-xl bg-stone-50 px-3 py-2 text-center ring-1 ring-stone-200">
-                <p class="text-lg font-bold text-stone-900">{{ booking.nights }} đêm</p>
-              </div>
-              <p v-if="booking.actualCheckIn" class="flex items-center gap-2">
-                <span class="text-stone-400">✅</span>
-                <span class="font-medium text-stone-500">Thực nhận:</span> {{ formatDateTime(booking.actualCheckIn) }}
-              </p>
-              <p v-if="booking.actualCheckOut" class="flex items-center gap-2">
-                <span class="text-stone-400">✅</span>
-                <span class="font-medium text-stone-500">Thực trả:</span> {{ formatDateTime(booking.actualCheckOut) }}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Price Detail (Receipt Style) -->
-        <section class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-          <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-4">
-            <div class="flex items-center gap-2">
-              <span class="text-lg">🧾</span>
-              <h2 class="text-lg font-semibold text-stone-900">Chi tiết giá</h2>
-            </div>
-          </div>
-          <div class="p-6">
-            <div class="space-y-3 text-sm">
-              <div class="flex justify-between rounded-lg bg-stone-50 px-4 py-2.5">
-                <span class="text-stone-600">Giá phòng / đêm</span>
-                <span class="font-medium text-stone-800">{{ formatPrice(booking.roomType.basePrice) }}</span>
-              </div>
-              <div class="flex justify-between rounded-lg bg-stone-50 px-4 py-2.5">
-                <span class="text-stone-600">Số đêm</span>
-                <span class="font-medium text-stone-800">{{ booking.nights }}</span>
-              </div>
-              <div class="flex justify-between rounded-lg bg-stone-50 px-4 py-2.5">
-                <span class="text-stone-600">Thành tiền phòng</span>
-                <span class="font-semibold text-stone-800">{{ formatPrice(booking.roomType.basePrice * booking.nights) }}</span>
-              </div>
-
-              <!-- Services -->
-              <div v-if="booking.services.length > 0" class="border-t border-dashed border-stone-200 pt-3">
-                <p class="mb-2 flex items-center gap-1.5 font-medium text-stone-700">
-                  <span>🛎️</span> Dịch vụ kèm theo:
-                </p>
-                <div v-for="svc in booking.services" :key="svc.serviceId" class="ml-4 flex justify-between rounded-lg px-3 py-1.5 text-stone-600 odd:bg-stone-50">
-                  <span>{{ svc.serviceName }} ({{ formatDate(svc.dateToUse) }})</span>
-                  <span class="font-medium">{{ formatPrice(getServicePrice(svc.serviceId)) }}</span>
-                </div>
-              </div>
-
-              <!-- Total -->
-              <div class="border-t-2 border-dashed border-stone-300 pt-4">
-                <div class="flex items-center justify-between">
-                  <span class="text-base font-bold text-stone-900">Tổng cộng</span>
-                  <span class="text-2xl font-bold text-stone-900">{{ formatPrice(booking.totalPrice) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Services Detail -->
-        <section v-if="booking.services.length > 0" class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-          <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-4">
-            <div class="flex items-center gap-2">
-              <span class="text-lg">🛎️</span>
-              <h2 class="text-lg font-semibold text-stone-900">Dịch vụ đã chọn</h2>
-            </div>
-          </div>
-          <div class="space-y-3 p-5">
-            <div
-              v-for="svc in booking.services"
-              :key="svc.serviceId"
-              class="flex items-center justify-between rounded-xl bg-stone-50 p-4 ring-1 ring-stone-200 transition hover:bg-stone-100"
+            <span class="rounded-full px-3 py-1.5 text-sm font-semibold border"
+              :class="{
+                'bg-amber-50 text-amber-700 border-amber-200': booking.status === 'chờ xác nhận',
+                'bg-blue-50 text-blue-700 border-blue-200': booking.status === 'đã xác nhận',
+                'bg-emerald-50 text-emerald-700 border-emerald-200': booking.status === 'đã check-in',
+                'bg-stone-100 text-stone-600 border-stone-200': booking.status === 'đã check-out',
+                'bg-red-50 text-red-700 border-red-200': booking.status === 'đã hủy'
+              }"
             >
+              {{ booking.status }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Cột 1 -->
+            <div class="space-y-4">
               <div>
-                <p class="font-medium text-stone-900">{{ svc.serviceName }}</p>
-                <p class="text-sm text-stone-500">{{ svc.serviceDescription || '' }}</p>
-                <p class="mt-1 flex items-center gap-1.5 text-xs text-stone-400">
-                  <span>📅</span> Ngày: {{ formatDate(svc.dateToUse) }} · <span>🕐</span> Giờ: {{ svc.timeServiceStart || '09:00' }}
-                </p>
+                <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Thông tin phòng</h3>
+                <div class="mt-2 space-y-2 text-sm text-stone-600">
+                  <div class="flex justify-between"><span class="text-stone-500">Chi nhánh:</span> <span class="font-medium text-stone-900">{{ booking.branch.branchName }}</span></div>
+                  <div class="flex justify-between"><span class="text-stone-500">Loại phòng:</span> <span class="font-medium text-stone-900">{{ booking.roomType.typeName }} (Chứa: {{ booking.roomType.capacity }})</span></div>
+                  <div class="flex justify-between"><span class="text-stone-500">Số phòng:</span> <span class="font-medium text-stone-900">{{ booking.room?.roomNumber || 'Chưa phân' }}</span></div>
+                </div>
               </div>
-              <span class="rounded-lg bg-stone-200 px-3 py-1.5 text-sm font-bold text-stone-800">{{ formatPrice(getServicePrice(svc.serviceId)) }}</span>
-            </div>
-          </div>
-        </section>
 
-        <!-- Customer + Staff Info -->
-        <section class="grid gap-6 sm:grid-cols-2">
-          <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-            <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-4">
-              <div class="flex items-center gap-2">
-                <span class="text-lg">👤</span>
-                <h2 class="text-lg font-semibold text-stone-900">Thông tin người đặt</h2>
-              </div>
-            </div>
-            <div class="space-y-3 p-6 text-sm">
-              <p class="flex items-center gap-2"><span class="text-stone-400">👤</span> <span class="font-medium text-stone-500">Họ tên:</span> {{ booking.customer.name }}</p>
-              <p class="flex items-center gap-2"><span class="text-stone-400">✉️</span> <span class="font-medium text-stone-500">Email:</span> {{ booking.customer.email }}</p>
-              <p class="flex items-center gap-2"><span class="text-stone-400">📞</span> <span class="font-medium text-stone-500">SĐT:</span> {{ booking.customer.phone }}</p>
-            </div>
-            <div v-if="booking.note" class="border-t border-stone-100 px-6 py-3">
-              <p class="text-sm text-stone-500">
-                <span class="font-medium">📝 Ghi chú:</span> {{ booking.note }}
-              </p>
-            </div>
-          </div>
-
-          <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-stone-200">
-            <div class="border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white px-6 py-4">
-              <div class="flex items-center gap-2">
-                <span class="text-lg">🧑‍💼</span>
-                <h2 class="text-lg font-semibold text-stone-900">Nhân viên xác nhận</h2>
+              <div>
+                <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Lịch trình ({{ booking.nights }} đêm)</h3>
+                <div class="mt-2 rounded-md bg-stone-50 p-3 text-sm text-stone-700 border border-stone-100">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="w-16 font-medium text-stone-500">Nhận:</span>
+                    <span class="font-medium">{{ formatDate(booking.checkIn) }}</span>
+                    <span class="text-stone-400">lúc</span>
+                    <span>{{ booking.checkInTime || '14:00' }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-16 font-medium text-stone-500">Trả:</span>
+                    <span class="font-medium">{{ formatDate(booking.checkOut) }}</span>
+                    <span class="text-stone-400">lúc</span>
+                    <span>{{ booking.checkOutTime || '12:00' }}</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div v-if="booking.staff" class="space-y-3 p-6 text-sm">
-              <p class="flex items-center gap-2"><span class="text-stone-400">👤</span> <span class="font-medium text-stone-500">Họ tên:</span> {{ booking.staff.name }}</p>
-              <p v-if="booking.staff.email" class="flex items-center gap-2"><span class="text-stone-400">✉️</span> <span class="font-medium text-stone-500">Email:</span> {{ booking.staff.email }}</p>
-            </div>
-            <div v-else class="px-6 py-8 text-center">
-              <div class="text-2xl">🕐</div>
-              <p class="mt-2 text-sm text-stone-500">Chưa có nhân viên xác nhận</p>
+
+            <!-- Cột 2 -->
+            <div class="space-y-4">
+              <div>
+                <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Người đặt</h3>
+                <div class="mt-2 space-y-2 text-sm text-stone-600">
+                  <div class="flex justify-between"><span class="text-stone-500">Họ tên:</span> <span class="font-medium text-stone-900">{{ booking.customer.name }}</span></div>
+                  <div class="flex justify-between"><span class="text-stone-500">SĐT:</span> <span class="font-medium text-stone-900">{{ booking.customer.phone }}</span></div>
+                  <div class="flex flex-col"><span class="text-stone-500 mb-1">Email:</span> <span class="font-medium text-stone-900 truncate">{{ booking.customer.email }}</span></div>
+                  <div class="flex flex-col mt-2 pt-2 border-t border-stone-100"><span class="text-stone-500 mb-1">Ghi chú:</span> <span class="italic text-stone-800">{{ booking.note || 'Không có ghi chú' }}</span></div>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
+        </div>
 
-        <!-- Action Buttons -->
-        <section class="flex flex-wrap gap-3">
-          <!-- Staff/Admin: Xác nhận -->
-          <button
-            v-if="canConfirm"
-            @click="handleConfirm"
-            :disabled="processing"
-            class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-700 hover:shadow-lg disabled:opacity-60"
-          >
-            {{ processing ? '⏳ Đang xử lý...' : '✓ Xác nhận đơn' }}
-          </button>
-          <!-- Staff/Admin: Check-in -->
-          <button
-            v-if="canCheckIn"
-            @click="handleCheckIn"
-            :disabled="processing"
-            class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 hover:shadow-lg disabled:opacity-60"
-          >
-            {{ processing ? '⏳ Đang xử lý...' : '→ Check-in' }}
-          </button>
-          <!-- Staff/Admin: Check-out -->
-          <button
-            v-if="canCheckOut"
-            @click="handleCheckOut"
-            :disabled="processing"
-            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-indigo-700 hover:shadow-lg disabled:opacity-60"
-          >
-            {{ processing ? '⏳ Đang xử lý...' : '← Check-out' }}
-          </button>
-          <!-- Hủy đơn -->
-          <button
-            v-if="canCancel"
-            @click="handleCancel"
-            :disabled="processing"
-            class="inline-flex items-center gap-2 rounded-xl border-2 border-rose-300 bg-rose-50 px-5 py-3 text-sm font-semibold text-rose-600 transition hover:bg-rose-100 disabled:opacity-60"
-          >
-            {{ processing ? '⏳ Đang xử lý...' : '✕ Hủy đơn' }}
-          </button>
-          <!-- User: Đánh giá (nếu đã check-out) -->
-          <RouterLink
-            v-if="canReview"
-            :to="`/feedbacks?bookingId=${booking.bookingId}`"
-            class="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-amber-600 hover:shadow-lg"
-          >
-            ★ Đánh giá
-          </RouterLink>
-        </section>
+        <!-- BẢNG GIÁ & DỊCH VỤ -->
+        <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <h3 class="mb-4 text-base font-semibold text-stone-800 uppercase tracking-wide border-b border-stone-100 pb-2">Chi tiết thanh toán</h3>
+          
+          <div class="space-y-3 text-sm">
+            <!-- Các dịch vụ (nếu có) -->
+            <div v-if="booking.services.length > 0" class="space-y-2">
+              <div v-for="svc in booking.services" :key="svc.serviceId" class="flex justify-between text-stone-600">
+                <span>Dịch vụ: {{ svc.serviceName }}</span>
+                <span>{{ formatPrice(getServicePrice(svc.serviceId)) }}</span>
+              </div>
+            </div>
+            
+            <div class="flex justify-between pt-4 border-t border-stone-200 mt-4">
+              <span class="text-base font-semibold text-stone-800">Tổng thanh toán:</span>
+              <span class="text-2xl font-bold text-stone-900">{{ formatPrice(booking.totalPrice) }}</span>
+            </div>
+          </div>
+        </div>
 
-        <!-- Messages -->
-        <p v-if="successMessage" class="flex items-center gap-2 rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 ring-1 ring-emerald-200">
-          <span>✅</span> {{ successMessage }}
-        </p>
-        <p v-if="errorMsg" class="flex items-center gap-2 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600 ring-1 ring-rose-200">
-          <span>⚠️</span> {{ errorMsg }}
-        </p>
+      </div>
+
+      <!-- CỘT PHẢI: THAO TÁC -->
+      <div class="lg:col-span-1">
+        <div class="sticky top-24 space-y-4">
+          <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+            <h3 class="mb-4 text-base font-semibold text-stone-800 uppercase tracking-wide">Thao tác</h3>
+            
+            <div class="flex flex-col gap-3">
+              <button v-if="canConfirm" @click="handleConfirm" :disabled="processing" class="w-full rounded-md bg-stone-900 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:opacity-50">
+                Xác nhận đơn
+              </button>
+              
+              <button v-if="canCheckIn" @click="handleCheckIn" :disabled="processing" class="w-full rounded-md bg-emerald-600 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50">
+                Check-in (Nhận phòng)
+              </button>
+              
+              <button v-if="canCheckOut" @click="handleCheckOut" :disabled="processing" class="w-full rounded-md bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50">
+                Check-out (Trả phòng)
+              </button>
+              
+              <button v-if="canCancel" @click="handleCancel" :disabled="processing" class="w-full rounded-md border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50">
+                Hủy đơn đặt phòng
+              </button>
+              
+              <RouterLink v-if="canReview" :to="`/feedbacks?bookingId=${booking.bookingId}`" class="flex w-full items-center justify-center rounded-md border border-amber-200 bg-amber-50 py-2.5 text-sm font-semibold text-amber-700 transition hover:bg-amber-100">
+                Đánh giá chất lượng
+              </RouterLink>
+
+              <div v-if="!canConfirm && !canCheckIn && !canCheckOut && !canCancel && !canReview" class="text-sm text-stone-500 text-center italic">
+                Không có thao tác khả dụng ở trạng thái này.
+              </div>
+            </div>
+
+            <!-- Thông báo thao tác -->
+            <div v-if="successMessage" class="mt-4 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700 border border-emerald-200">
+              {{ successMessage }}
+            </div>
+            <div v-if="errorMsg" class="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+              {{ errorMsg }}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
