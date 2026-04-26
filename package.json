@@ -1,7 +1,13 @@
 {
+<<<<<<< HEAD
+  "name": "fe-nhom4",
+  "private": true,
+  "version": "0.0.1",
+=======
   "name": "frontend-vue",
   "private": true,
   "version": "0.0.0",
+>>>>>>> 1d408ad14e9f80697ad4155be407b8e65c4528a5
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +15,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD
+    "axios": "^1.5.0",
+    "vue": "^3.4.0",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.6",
+    "vite": "^8.0.8"
+=======
     "axios": "^1.13.6",
     "pinia": "^3.0.4",
     "vue": "^3.3.4",
@@ -20,5 +35,6 @@
     "postcss": "^8.4.27",
     "tailwindcss": "^3.3.3",
     "vite": "^4.4.5"
+>>>>>>> 1d408ad14e9f80697ad4155be407b8e65c4528a5
   }
 }
